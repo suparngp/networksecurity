@@ -2,7 +2,7 @@
  * The contents of this file cannot be used anywhere without the seeking prior permission from author
  */
 
-package com.netsec.auth.messages;
+package com.netsec.messages;
 
 /**
  *

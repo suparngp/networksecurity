@@ -2,19 +2,20 @@
  * The contents of this file cannot be used anywhere without the seeking prior permission from author
  */
 
-package com.netsec.auth.messages;
-
-import java.io.Serializable;
+package com.netsec.messages;
 
 /**
  *
  * @author suparngupta
  */
-public class Ticket2 implements Serializable{
+public class Ticket2 extends GenericMessage{
     private String userId;
     private String serverName;
     private long expiration;
 
+    public Ticket2(){
+        this.setType(MessageType.TICKET_2);
+    }
     @Override
     public String toString() {
         return "Ticket2{" + "userId=" + userId + ", serverName=" + serverName + ", expiration=" + expiration + ", MFSFSKey=" + MFSFSKey + '}';

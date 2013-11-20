@@ -4,13 +4,13 @@
 package com.netsec.auth;
 
 import com.google.gson.Gson;
-import com.netsec.auth.commons.ReaderWriter;
-import com.netsec.auth.messages.CloseSocket;
-import com.netsec.auth.messages.ErrorMessage;
-import com.netsec.auth.messages.GenericMessage;
-import com.netsec.auth.messages.Intro;
-import com.netsec.auth.messages.MessageType;
-import com.netsec.auth.messages.Wrapper;
+import com.netsec.commons.ReaderWriter;
+import com.netsec.messages.CloseSocket;
+import com.netsec.messages.ErrorMessage;
+import com.netsec.messages.GenericMessage;
+import com.netsec.messages.Intro;
+import com.netsec.messages.MessageType;
+import com.netsec.messages.Wrapper;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;

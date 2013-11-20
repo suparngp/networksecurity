@@ -3,11 +3,11 @@
  */
 package com.netsec.client;
 
-import com.netsec.auth.commons.CryptoUtilities;
-import com.netsec.auth.messages.ChallengeMessage;
-import com.netsec.auth.messages.ClientChallenge;
-import com.netsec.auth.messages.GenericMessage;
-import com.netsec.auth.messages.TicketsResponse;
+import com.netsec.commons.CryptoUtilities;
+import com.netsec.messages.ChallengeMessage;
+import com.netsec.messages.ClientChallenge;
+import com.netsec.messages.GenericMessage;
+import com.netsec.messages.TicketsResponse;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -79,4 +79,18 @@ public class AuthServices {
     public static GenericMessage decryptAuthObject(byte[] encryptedBuffer) throws Exception {
         return CryptoUtilities.decryptObject(encryptedBuffer, authKey);
     }
+
+    /**
+     * Processes the tickets and store the file server keys in the data file for future use.
+     * @param tickets the tickets response
+     * @throws Exception
+     */
+    public static void processTickets(TicketsResponse tickets) throws Exception{
+        String userFSKey = tickets.getUserFSKey();
+        String userMFSKey = tickets.getUserMFSKey();
+        props.setProperty("user.mfs", userMFSKey);
+        props.setProperty("user.fs." + tickets.getFileServerName(), userFSKey);
+        props.store(new FileOutputStream("client.props"), null);
+    }
+    
 }

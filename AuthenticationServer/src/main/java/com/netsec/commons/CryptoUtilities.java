@@ -2,9 +2,9 @@
  * The contents of this file cannot be used anywhere without the seeking prior permission from author
  */
 
-package com.netsec.auth.commons;
+package com.netsec.commons;
 
-import com.netsec.auth.messages.GenericMessage;
+import com.netsec.messages.GenericMessage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;

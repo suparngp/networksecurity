@@ -5,20 +5,18 @@
 package com.netsec.client;
 
 import com.google.gson.Gson;
-import com.netsec.auth.commons.ReaderWriter;
-import com.netsec.auth.messages.ChallengeMessage;
-import com.netsec.auth.messages.ClientChallenge;
-import com.netsec.auth.messages.CloseSocket;
-import com.netsec.auth.messages.GenericMessage;
-import com.netsec.auth.messages.Intro;
-import com.netsec.auth.messages.MessageType;
-import com.netsec.auth.messages.TicketsResponse;
-import com.netsec.auth.messages.Wrapper;
-import java.io.ByteArrayOutputStream;
+import com.netsec.commons.ReaderWriter;
+import com.netsec.messages.CMFS1;
+import com.netsec.messages.ChallengeMessage;
+import com.netsec.messages.CloseSocket;
+import com.netsec.messages.GenericMessage;
+import com.netsec.messages.Intro;
+import com.netsec.messages.MessageType;
+import com.netsec.messages.TicketsResponse;
+import com.netsec.messages.Wrapper;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 /**
@@ -27,10 +25,9 @@ import java.net.Socket;
  */
 public class Client {
     private static Socket socket;
-    private AuthServices authServices;
+    private static Socket mfsSocket;
     
     public Client (){
-        authServices = new AuthServices();
     }
     public static void main(String[] args) throws Exception {
         
@@ -70,6 +67,9 @@ public class Client {
             //receive the tickets
             byte[] encryptedTickets = ReaderWriter.readStream(dis);
             TicketsResponse tickets = (TicketsResponse)AuthServices.decryptAuthObject(encryptedTickets);
+            
+            //store the keys in the data file.
+            AuthServices.processTickets(tickets);
             System.out.println(tickets);
 
             //verify the client challenge response
@@ -78,9 +78,36 @@ public class Client {
             
             //send socket close request
             dos.write(ReaderWriter.serialize(new CloseSocket("Tickets received successfully. Closing the socket")));
+            
+            //close the auth socket.
             dis.close();
             dos.close();
-        }
+            socket.close();
+            
+            //start a socket with 
+            mfsSocket = new Socket("localhost", 1992);
+            dis = new DataInputStream(mfsSocket.getInputStream());
+            dos = new DataOutputStream(mfsSocket.getOutputStream());
+            
+            //create the client challenge
+            byte[] cmfsChallenge = MFSServices.createMFSChallenge("1234", "accounts");
+            byte[] ticket1 = tickets.getTicket1();
+            CMFS1 cmfs1 = new CMFS1();
+            cmfs1.setChallenge(cmfsChallenge);
+            cmfs1.setTicket(ticket1);
+            
+            //send the client challenge
+            dos.write(ReaderWriter.serialize(cmfs1));
+            dos.flush();
+            
+            //read the server challenge
+            byte[] serverChallenge = ReaderWriter.readStream(dis);
+            byte[] mfsChallengeRes = MFSServices.processMFSChallenge(serverChallenge, tickets.getTicket2(), tickets.getTicket3());
+            dos.write(mfsChallengeRes);
+            dos.flush();
+        }   
+        
+        
         catch(Exception e){
             System.out.println("Error: Unable to connect to the authentication server");
             e.printStackTrace();

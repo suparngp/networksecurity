@@ -3,13 +3,13 @@
  */
 package com.netsec.auth;
 
-import com.netsec.auth.commons.CryptoUtilities;
-import com.netsec.auth.messages.ChallengeMessage;
-import com.netsec.auth.messages.ClientChallenge;
-import com.netsec.auth.messages.Ticket1;
-import com.netsec.auth.messages.Ticket2;
-import com.netsec.auth.messages.Ticket3;
-import com.netsec.auth.messages.TicketsResponse;
+import com.netsec.commons.CryptoUtilities;
+import com.netsec.messages.ChallengeMessage;
+import com.netsec.messages.ClientChallenge;
+import com.netsec.messages.Ticket1;
+import com.netsec.messages.Ticket2;
+import com.netsec.messages.Ticket3;
+import com.netsec.messages.TicketsResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;

@@ -2,26 +2,26 @@
  * The contents of this file cannot be used anywhere without the seeking prior permission from author
  */
 
-package com.netsec.auth.messages;
-
-import java.io.Serializable;
+package com.netsec.messages;
 
 /**
  *
  * @author suparngupta
  */
-public class Ticket3 implements Serializable{
+public class Ticket1 extends GenericMessage{
     private String userId;
     private String serverName;
 
-    private long expiration;
-    private String userFSKey;
-    
+    public Ticket1(){
+        this.setType(MessageType.TICKET_1);
+    }
     @Override
     public String toString() {
-        return "Ticket3{" + "userId=" + userId + ", serverName=" + serverName + ", expiration=" + expiration + ", userFSKey=" + userFSKey + '}';
+        return "Ticket1{" + "userId=" + userId + ", serverName=" + serverName + ", expiration=" + expiration + ", userMFSKey=" + userMFSKey + ", MFSFSKey=" + MFSFSKey + '}';
     }
-    
+    private long expiration;
+    private String userMFSKey;
+    private String MFSFSKey;
 
     /**
      * @return the userId
@@ -66,16 +66,31 @@ public class Ticket3 implements Serializable{
     }
 
     /**
-     * @return the userFSKey
+     * @return the userMFSKey
      */
-    public String getUserFSKey() {
-        return userFSKey;
+    public String getUserMFSKey() {
+        return userMFSKey;
     }
 
     /**
-     * @param userFSKey the userFSKey to set
+     * @param userMFSKey the userMFSKey to set
      */
-    public void setUserFSKey(String userFSKey) {
-        this.userFSKey = userFSKey;
+    public void setUserMFSKey(String userMFSKey) {
+        this.userMFSKey = userMFSKey;
     }
+
+    /**
+     * @return the MFSFSKey
+     */
+    public String getMFSFSKey() {
+        return MFSFSKey;
+    }
+
+    /**
+     * @param MFSFSKey the MFSFSKey to set
+     */
+    public void setMFSFSKey(String MFSFSKey) {
+        this.MFSFSKey = MFSFSKey;
+    }
+    
 }
