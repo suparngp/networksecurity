@@ -10,17 +10,11 @@ import com.netsec.messages.Ticket1;
 import com.netsec.messages.Ticket2;
 import com.netsec.messages.Ticket3;
 import com.netsec.messages.TicketsResponse;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Properties;
 import java.util.Random;
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
 /**
@@ -64,6 +58,10 @@ public class AuthProvider {
         byte[] key = getUserAuthKey(userId);
         ClientChallenge cc = (ClientChallenge)CryptoUtilities.decryptObject(clientChallenge, key);
         System.out.println(cc);
+        String serverChallenge = props.getProperty("user." + userId + ".challenge");
+        if(!serverChallenge.equals(cc.getServerChallenge())){
+            throw new Exception("Client could not fulfil the challenge");
+        }
         String fileServerName = cc.getFileServerName();
         long expiration = System.currentTimeMillis() + 50000;
         TicketsResponse res = new TicketsResponse();

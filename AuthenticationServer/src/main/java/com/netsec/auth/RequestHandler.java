@@ -63,8 +63,6 @@ public class RequestHandler extends Thread {
             Intro intro = (Intro)ReaderWriter.deserialize(message);
             System.out.println(intro);
             
-            System.out.println(intro);
-            
             //create a wrapper instance to be used later on in the code.
             Wrapper wrapper = new Wrapper();
             wrapper.setUserId(intro.getUserId());
