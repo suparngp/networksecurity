@@ -9,8 +9,10 @@ import com.netsec.messages.CFSIntro;
 import com.netsec.messages.CMFS1;
 import com.netsec.messages.MFSChallengeResponse;
 import com.netsec.messages.CMFSChallengeResponse; 
+import com.netsec.messages.MFSFSChallengeResponse;
 import com.netsec.messages.CFSIntro; 
 import com.netsec.messages.Ticket1;
+import com.netsec.messages.Wrapper; 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -107,6 +109,9 @@ public class MFSProvider {
         fsChallenge.setFileServerName(fsID);
         fsChallenge.setUserId(clientID);
         
+        System.out.print("MFS-FS challenge: ");
+        System.out.println(fsChallenge.toString());
+        
         //encrypt the challenge message using the MFS-FS key
         byte[] MFSFSKey = DatatypeConverter.parseBase64Binary(props.getProperty("fs."+fsID + ".mfs.key"));
         byte[] challengeEncrypted = CryptoUtilities.encryptObject(fsChallenge, MFSFSKey);
@@ -127,4 +132,30 @@ public class MFSProvider {
         byte[] key = DatatypeConverter.parseBase64Binary(sharedKey);
         return key;
     }
+    
+   private static byte[] getFSKey(String fsID) throws Exception{
+        
+        String sharedKey = props.getProperty("fs."+ fsID + ".mfs.key");
+        
+        if (sharedKey == null || sharedKey.isEmpty()) {
+            throw new Exception("FS Not Found");
+        }
+        byte[] key = DatatypeConverter.parseBase64Binary(sharedKey);
+        return key;
+    }
+    
+    public static byte[] processMFSFSChallengeResponse(Wrapper response) throws Exception{
+        
+        //retrieve the MFS - FS key
+        byte[] key = getFSKey(response.getUserId());
+        
+        MFSFSChallengeResponse fsChallengeResp = (MFSFSChallengeResponse)CryptoUtilities.decryptObject(response.getEncryptedBuffer(), key); 
+        System.out.print("MFS recieved MFS-FS challenge Response: ");
+        System.out.println(fsChallengeResp.toString());
+        //TODO: verify the challenge
+        
+        
+        return null; 
+    }
+    
 }
