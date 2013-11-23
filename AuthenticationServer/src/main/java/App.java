@@ -2,6 +2,7 @@
 
 import com.netsec.auth.Server;
 import com.netsec.mfs.MFSServer;
+import com.netsec.fs.FSServer; 
 import java.io.File;
 
 /**
@@ -18,5 +19,8 @@ public class App
         System.out.println("Starting the MFS server");
         new MFSServer().start();
         System.out.println("MFS server started");
+        System.out.println( "Starting the File Server");
+        new FSServer().start(); 
+        System.out.println( "File Server Started");
     }
 }

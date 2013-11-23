@@ -7,7 +7,9 @@ package com.netsec.mfs;
 import com.netsec.commons.CryptoUtilities;
 import com.netsec.messages.CFSIntro;
 import com.netsec.messages.CMFS1;
-import com.netsec.messages.CMFSChallengeResponse;
+import com.netsec.messages.MFSChallengeResponse;
+import com.netsec.messages.CMFSChallengeResponse; 
+import com.netsec.messages.CFSIntro; 
 import com.netsec.messages.Ticket1;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -54,6 +56,11 @@ public class MFSProvider {
         props.store(new FileOutputStream("mfs.props"), null);
         byte[] userMFSKey = DatatypeConverter.parseBase64Binary(userMFSKeyString);
         
+        //get the MFS and FS key
+        String MFSFSKeyString = ticket1.getMFSFSKey(); 
+        props.setProperty("fs."+ticket1.getServerName() + ".mfs.key", MFSFSKeyString);
+        props.store(new FileOutputStream("mfs.props"), null);
+        System.out.println("Stored FS MFS key");
         
         //decrypt the client challenge
         CFSIntro intro = (CFSIntro)CryptoUtilities.decryptObject(cmfs1.getChallenge(), userMFSKey);
@@ -74,7 +81,50 @@ public class MFSProvider {
     }
     
     
-    public byte[] processCMFSChallengeResponse(byte[] encryptedBuffer){
-        return null;
+    public static CMFS1 processMFSChallengeResponse(byte[] encryptedBuffer, String clientID, String fsID) throws Exception{
+        
+        //get the key
+        byte[] key = getCMFSKey(clientID); 
+        
+        
+        MFSChallengeResponse clientChallengeResp = (MFSChallengeResponse)CryptoUtilities.decryptObject(encryptedBuffer, key); 
+        
+        //TODO: verify the challenge
+        
+        //Create the FS challenge
+        
+        //create a fresh challenge for the server and save it in the MFS 
+        String freshChallenge = String.valueOf(new Random().nextLong());
+        props.setProperty("fs.challenge." + fsID, freshChallenge);
+        props.store(new FileOutputStream("mfs.props"), null);
+
+        //Create the Challenge object and message object        
+        CMFS1 fsChallengeMessage = new CMFS1();
+        fsChallengeMessage.setTicket(clientChallengeResp.getTicket2());
+       
+        CFSIntro fsChallenge = new CFSIntro();
+        fsChallenge.setChallenge(freshChallenge);
+        fsChallenge.setFileServerName(fsID);
+        fsChallenge.setUserId(clientID);
+        
+        //encrypt the challenge message using the MFS-FS key
+        byte[] MFSFSKey = DatatypeConverter.parseBase64Binary(props.getProperty("fs."+fsID + ".mfs.key"));
+        byte[] challengeEncrypted = CryptoUtilities.encryptObject(fsChallenge, MFSFSKey);
+        
+        
+        fsChallengeMessage.setChallenge(challengeEncrypted);
+        
+        return fsChallengeMessage; 
+    }
+    
+    private static byte[] getCMFSKey(String userId) throws Exception{
+        
+        String sharedKey = props.getProperty("user." + userId + ".mfs.key");
+        
+        if (sharedKey == null || sharedKey.isEmpty()) {
+            throw new Exception("User Not Found");
+        }
+        byte[] key = DatatypeConverter.parseBase64Binary(sharedKey);
+        return key;
     }
 }

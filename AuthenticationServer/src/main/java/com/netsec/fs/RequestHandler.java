@@ -2,7 +2,7 @@
  * The contents of this file cannot be used anywhere without the seeking prior permission from author
  */
 
-package com.netsec.mfs;
+package com.netsec.fs;
 
 import com.netsec.commons.ReaderWriter;
 import com.netsec.commons.CryptoUtilities; 
@@ -17,7 +17,7 @@ import java.net.Socket;
 
 /**
  *
- * @author suparngupta
+ * @author melyssason
  */
 public class RequestHandler extends Thread{
     Socket socket;
@@ -43,33 +43,16 @@ public class RequestHandler extends Thread{
             dos = new DataOutputStream(socket.getOutputStream());
             dis = new DataInputStream(socket.getInputStream());
             
-            //get the cmfs1 message 
+            //get the MFSFS challenge 
             byte[] cmfs1Stream = ReaderWriter.readStream(dis);
-            CMFS1 cmfs1 = (CMFS1)ReaderWriter.deserialize(cmfs1Stream);
+            CMFS1 MFSchallenge = (CMFS1)ReaderWriter.deserialize(cmfs1Stream);
             
-            //process the client challenge and send the challenge
-            byte[] serverChallenge = MFSProvider.processClientChallenge(cmfs1);
-            dos.write(serverChallenge);
-            dos.flush();
-            System.out.println("Process Client Challenge and send response.");
+            byte[] MFSchallengeResponse = FSProvider.processMFSChallenge(MFSchallenge); 
             
-            //read the challenge response and the ticket2 and ticket3 
-            Wrapper2 wrapper = (Wrapper2)ReaderWriter.deserialize(ReaderWriter.readStream(dis));
-            System.out.println(wrapper.getUserId());
-            byte[] clientRespBuffer = wrapper.getEncryptedBuffer(); 
-            CMFS1 mfsfschallenge = MFSProvider.processMFSChallengeResponse(clientRespBuffer, wrapper.getUserId(), wrapper.getFileServerName());
-            
-            //open socket to File Server
-            Socket fsSocket = new Socket("localhost", 1993);
-            DataInputStream FSdis = new DataInputStream(fsSocket.getInputStream());
-            DataOutputStream FSdos = new DataOutputStream(fsSocket.getOutputStream());
-            
-            FSdos.write(ReaderWriter.serialize(mfsfschallenge));
-            FSdos.flush();
         }
         
         catch(Exception e){
-            System.out.println("Error: unable to process client request on Master File Server");
+            System.out.println("Error: unable to process client request on File Server");
             e.printStackTrace();
         }
     }
@@ -82,7 +65,7 @@ public class RequestHandler extends Thread{
         }
         
         catch(IOException e){
-            System.out.println("Error: unable to close the client socket on Master File Server");
+            System.out.println("Error: unable to close the client socket on File Server");
             e.printStackTrace();
         }
     }
