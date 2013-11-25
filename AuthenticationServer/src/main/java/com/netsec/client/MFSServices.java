@@ -11,7 +11,9 @@ import com.netsec.messages.CMFS1;
 import com.netsec.messages.CMFSChallengeResponse;
 import com.netsec.messages.MFSChallengeResponse;
 import com.netsec.messages.Ticket1;
+import com.netsec.messages.FSClientChallenge;
 import com.netsec.messages.Wrapper;
+import com.netsec.messages.Nonce;
 import com.netsec.messages.Wrapper2;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -88,5 +90,22 @@ public class MFSServices {
         wrapper.setEncryptedBuffer(CryptoUtilities.encryptObject(mfscr, userMFSKey));
         wrapper.setFileServerName(cmfscr.getFileServerName());
         return ReaderWriter.serialize(wrapper);
+    }
+    
+    public static byte[] processFSChallenge(Wrapper2 msg) throws Exception{
+        
+        //get key and decrypt
+        FSClientChallenge fsChallenge = (FSClientChallenge)CryptoUtilities.decryptObject(msg.getEncryptedBuffer(), userMFSKey);
+        
+        System.out.println("Recieved FS Challenge "+fsChallenge.toString());
+        
+        //get User FS key and decrypt nonce
+        byte[] userFSKey = DatatypeConverter.parseBase64Binary(props.getProperty("user.fs."+msg.getFileServerName()));
+        Nonce nonce = (Nonce)CryptoUtilities.decryptObject(fsChallenge.getEncryptedChallenge(), userFSKey);
+        
+        System.out.println(nonce.toString());
+        
+        
+        return null; 
     }
 }

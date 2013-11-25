@@ -10,6 +10,9 @@ import com.netsec.messages.CMFS1;
 import com.netsec.messages.Wrapper;
 import com.netsec.messages.Wrapper2; 
 import com.netsec.messages.CMFSChallengeResponse;
+import com.netsec.messages.MFSFSChallengeResponse;
+import com.netsec.messages.CFSIntro;
+import com.netsec.messages.MFSChallengeResponse;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -57,7 +60,14 @@ public class RequestHandler extends Thread{
             Wrapper2 wrapper = (Wrapper2)ReaderWriter.deserialize(ReaderWriter.readStream(dis));
             System.out.println(wrapper.getUserId());
             byte[] clientRespBuffer = wrapper.getEncryptedBuffer(); 
-            CMFS1 mfsfschallenge = MFSProvider.processMFSChallengeResponse(clientRespBuffer, wrapper.getUserId(), wrapper.getFileServerName());
+            
+            //get the key
+            byte[] key = MFSProvider.getCMFSKey(wrapper.getUserId()); 
+            MFSChallengeResponse clientChallengeResp = (MFSChallengeResponse)CryptoUtilities.decryptObject(clientRespBuffer, key); 
+        
+            byte[] ticket3 = clientChallengeResp.getTicket3(); 
+        
+            CMFS1 mfsfschallenge = MFSProvider.processMFSChallengeResponse(clientChallengeResp, wrapper.getUserId(), wrapper.getFileServerName());
             
             //open socket to File Server
             Socket fsSocket = new Socket("localhost", 1993);
@@ -66,6 +76,28 @@ public class RequestHandler extends Thread{
             
             FSdos.write(ReaderWriter.serialize(mfsfschallenge));
             FSdos.flush();
+            
+            //Read the challenge response and send the next message (#10)
+            Wrapper MFSFSChallengeResponse = (Wrapper)ReaderWriter.deserialize(ReaderWriter.readStream(FSdis));
+         
+            byte[] MFStoFS2 = MFSProvider.processMFSFSChallengeResponse(MFSFSChallengeResponse);
+            
+            //encrypt the challenge
+            CMFS1 MFStoFS2WithTicket3 = new CMFS1();
+            MFStoFS2WithTicket3.setChallenge(MFStoFS2);
+            MFStoFS2WithTicket3.setTicket(ticket3);
+            
+            FSdos.write(ReaderWriter.serialize(MFStoFS2WithTicket3));
+            FSdos.flush();
+            
+            //Read in the FS - User Challenge, process and forward to Client
+            Wrapper2 UserChallenge = (Wrapper2)ReaderWriter.deserialize(ReaderWriter.readStream(FSdis));
+            Wrapper2 UserChallengeForward = MFSProvider.processFSUserChallenge(UserChallenge);
+            
+            //send the user challenge to the client
+            dos.write(ReaderWriter.serialize(UserChallengeForward));
+            dos.flush(); 
+
         }
         
         catch(Exception e){

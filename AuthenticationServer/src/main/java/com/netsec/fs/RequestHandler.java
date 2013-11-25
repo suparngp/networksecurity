@@ -47,7 +47,25 @@ public class RequestHandler extends Thread{
             byte[] cmfs1Stream = ReaderWriter.readStream(dis);
             CMFS1 MFSchallenge = (CMFS1)ReaderWriter.deserialize(cmfs1Stream);
             
-            byte[] MFSchallengeResponse = FSProvider.processMFSChallenge(MFSchallenge); 
+            //process and send response
+            Wrapper MFSchallengeResponse = FSProvider.processMFSChallenge(MFSchallenge); 
+            
+            
+            dos.write(ReaderWriter.serialize(MFSchallengeResponse));
+            dos.flush();
+            System.out.println("Process MFS Challenge and send response.");
+            
+            //get MFStoFS2
+            byte[] MFStoFS2stream = ReaderWriter.readStream(dis);
+            CMFS1 MFStoFS2 = (CMFS1)ReaderWriter.deserialize(MFStoFS2stream);
+            
+            Wrapper2 UserChallenge = FSProvider.processMFStoFS2(MFStoFS2);
+            
+            //send the user challenge (msg #11)
+            dos.write(ReaderWriter.serialize(UserChallenge));
+            dos.flush();
+            System.out.println("Sent FS User Challenge from FS");
+            
             
         }
         

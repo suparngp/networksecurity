@@ -14,6 +14,7 @@ import com.netsec.messages.Intro;
 import com.netsec.messages.MessageType;
 import com.netsec.messages.TicketsResponse;
 import com.netsec.messages.Wrapper;
+import com.netsec.messages.Wrapper2;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -105,6 +106,15 @@ public class Client {
             byte[] mfsChallengeRes = MFSServices.processMFSChallenge(serverChallenge, tickets.getTicket2(), tickets.getTicket3());
             dos.write(mfsChallengeRes);
             dos.flush();
+            
+            //read the FS challenge
+            byte[] fsChallengeStream = ReaderWriter.readStream(dis);
+            
+            //unwrap and process
+            Wrapper2 fsChallenge = (Wrapper2)ReaderWriter.deserialize(fsChallengeStream);
+            byte[] MELYSSA = MFSServices.processFSChallenge(fsChallenge);
+            
+            
         }   
         
         

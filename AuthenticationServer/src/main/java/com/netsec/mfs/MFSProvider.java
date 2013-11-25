@@ -6,6 +6,7 @@ package com.netsec.mfs;
 
 import com.netsec.commons.CryptoUtilities;
 import com.netsec.messages.CFSIntro;
+import com.netsec.messages.FSClientChallenge;
 import com.netsec.messages.CMFS1;
 import com.netsec.messages.MFSChallengeResponse;
 import com.netsec.messages.CMFSChallengeResponse; 
@@ -13,6 +14,7 @@ import com.netsec.messages.MFSFSChallengeResponse;
 import com.netsec.messages.CFSIntro; 
 import com.netsec.messages.Ticket1;
 import com.netsec.messages.Wrapper; 
+import com.netsec.messages.Wrapper2;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -83,16 +85,11 @@ public class MFSProvider {
     }
     
     
-    public static CMFS1 processMFSChallengeResponse(byte[] encryptedBuffer, String clientID, String fsID) throws Exception{
+    public static CMFS1 processMFSChallengeResponse(MFSChallengeResponse clientChallengeResp, String clientID, String fsID) throws Exception{
         
-        //get the key
-        byte[] key = getCMFSKey(clientID); 
-        
-        
-        MFSChallengeResponse clientChallengeResp = (MFSChallengeResponse)CryptoUtilities.decryptObject(encryptedBuffer, key); 
-        
+ 
         //TODO: verify the challenge
-        
+                
         //Create the FS challenge
         
         //create a fresh challenge for the server and save it in the MFS 
@@ -122,7 +119,7 @@ public class MFSProvider {
         return fsChallengeMessage; 
     }
     
-    private static byte[] getCMFSKey(String userId) throws Exception{
+    public static byte[] getCMFSKey(String userId) throws Exception{
         
         String sharedKey = props.getProperty("user." + userId + ".mfs.key");
         
@@ -133,7 +130,7 @@ public class MFSProvider {
         return key;
     }
     
-   private static byte[] getFSKey(String fsID) throws Exception{
+   public static byte[] getFSKey(String fsID) throws Exception{
         
         String sharedKey = props.getProperty("fs."+ fsID + ".mfs.key");
         
@@ -152,10 +149,50 @@ public class MFSProvider {
         MFSFSChallengeResponse fsChallengeResp = (MFSFSChallengeResponse)CryptoUtilities.decryptObject(response.getEncryptedBuffer(), key); 
         System.out.print("MFS recieved MFS-FS challenge Response: ");
         System.out.println(fsChallengeResp.toString());
-        //TODO: verify the challenge
+        
+        //verify the challenge
+        String correctChallenge = props.getProperty("fs.challenge."+response.getUserId());
+        if(Long.parseLong(fsChallengeResp.getmfsChallenge())+1 != Long.parseLong(correctChallenge)){
+            throw new Exception("FS could not fulfil the challenge");
+        }
+          
+       //Create third message
+        CFSIntro mfstofs2 = new CFSIntro();
+        mfstofs2.setFileServerName(fsChallengeResp.getFileServerName());
+        mfstofs2.setUserId(fsChallengeResp.getUserId());
         
         
-        return null; 
+        Long fsCh = Long.parseLong(fsChallengeResp.getfsChallenge());
+        fsCh--; 
+        
+        mfstofs2.setChallenge(String.valueOf(fsCh));
+        
+        //encrypt the challenge
+        byte[] challengeEncrypted = CryptoUtilities.encryptObject(mfstofs2, key);
+        
+        return challengeEncrypted; 
+    }
+    
+    public static Wrapper2 processFSUserChallenge(Wrapper2 userChallenge) throws Exception
+    {      
+        //retrieve the MFS - FS key and MFS - User key
+        byte[] MFSFSkey = getFSKey(userChallenge.getFileServerName());
+        byte[] CMFSkey = getCMFSKey(userChallenge.getUserId());
+        
+        //decrypt
+        FSClientChallenge cc = (FSClientChallenge)CryptoUtilities.decryptObject(userChallenge.getEncryptedBuffer(), MFSFSkey);
+        System.out.println("FSClientChallenge recieved at MFS="+cc.toString());
+        
+        //Encrypt with FS - User Key
+        byte[] encryptedChallenge = CryptoUtilities.encryptObject(cc, CMFSkey);
+        
+        //wrap
+        Wrapper2 reWrapped = new Wrapper2();
+        reWrapped.setEncryptedBuffer(encryptedChallenge);
+        reWrapped.setFileServerName(userChallenge.getFileServerName());
+        reWrapped.setUserId(userChallenge.getUserId());
+        
+        return reWrapped;  
     }
     
 }

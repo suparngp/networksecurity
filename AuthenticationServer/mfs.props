@@ -1,7 +1,8 @@
-#Sat Nov 23 11:33:34 CST 2013
+#Mon Nov 25 13:23:34 CST 2013
 datastore.name=mfs
-user.1234.mfs.key=tsaPK8DLgaJmPIg8SWUmcg\=\=
+user.1234.mfs.key=4cvSZVRaDW9Fpg49Aodu/Q\=\=
+fs.challenge.accounts=-3536138469196964179
 mfs.auth.key=GBB4sU8LNXwxFINyj9kejw\=\=
-fs.challenge.accounts=527114613861077345
-user.1234.fs.accounts=542598732858142357
-fs.accounts.mfs.key=kKNoKL1I3ny4pp4hUOhxqA\=\=
+user.1234.fs.accounts=4022822248815495461
+fs.accounts.mfs.key=y6t2IQ2uB+eWy/AMAG5M/Q\=\=
+fs.accounts.user.1234.ticket3=[B@de684bd
