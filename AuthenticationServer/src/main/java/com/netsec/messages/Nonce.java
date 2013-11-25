@@ -10,11 +10,12 @@ package com.netsec.messages;
  */
 public class Nonce extends GenericMessage {
     private String nonce;
+    private String nonce2 = null;
 
 
     @Override
     public String toString() {
-        return "Nonce{" + "nonce=" + nonce + '}';
+        return "Nonce{" + "nonce=" + nonce + "nonce2="+nonce2+'}';
     }
     
     /**
@@ -31,4 +32,17 @@ public class Nonce extends GenericMessage {
         this.nonce = n;
     }
   
+        /**
+     * @return the nonce2
+     */
+    public String getNonce2() {
+        return nonce2;
+    }
+
+    /**
+     * @param n the nonce2 to set
+     */
+    public void setNonce2(String n) {
+        this.nonce2 = n;
+    }
 }

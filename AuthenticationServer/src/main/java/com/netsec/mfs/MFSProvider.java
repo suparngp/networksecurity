@@ -195,4 +195,28 @@ public class MFSProvider {
         return reWrapped;  
     }
     
+    public static Wrapper2 processFSUserChallengeReply(Wrapper2 userChallenge) throws Exception
+    {     
+        // note, this is subtly different from processFSUserChallenge in that it uses the keys in reverse. 
+        
+        //retrieve the MFS - FS key and MFS - User key
+        byte[] MFSFSkey = getFSKey(userChallenge.getFileServerName());
+        byte[] CMFSkey = getCMFSKey(userChallenge.getUserId());
+        
+        //decrypt
+        FSClientChallenge cc = (FSClientChallenge)CryptoUtilities.decryptObject(userChallenge.getEncryptedBuffer(), CMFSkey);
+        System.out.println("FSClientChallengeReply recieved at MFS="+cc.toString());
+        
+        //Encrypt with MFS - FS Key
+        byte[] encryptedChallenge = CryptoUtilities.encryptObject(cc, MFSFSkey);
+        
+        //wrap
+        Wrapper2 reWrapped = new Wrapper2();
+        reWrapped.setEncryptedBuffer(encryptedChallenge);
+        reWrapped.setFileServerName(userChallenge.getFileServerName());
+        reWrapped.setUserId(userChallenge.getUserId());
+        
+        return reWrapped;  
+    }
+    
 }

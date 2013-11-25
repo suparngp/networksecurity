@@ -142,4 +142,34 @@ public class FSProvider {
         return wrapped;
     }
     
+    public static byte[] processUserChallengeReply(Wrapper2 msg) throws Exception{
+        
+                
+        //get the MFS - FS key and the FS - User key
+        String MFSFSKeyString = props.getProperty("mfs.key");
+        byte[] MFSFSKey = DatatypeConverter.parseBase64Binary(MFSFSKeyString);
+        String FSUserKeyString = props.getProperty("user."+msg.getUserId()+".key");
+        byte[] FSUserKey = DatatypeConverter.parseBase64Binary(FSUserKeyString);
+        
+        //open the message, and decrypt the nonces
+        FSClientChallenge clientReply = (FSClientChallenge)CryptoUtilities.decryptObject(msg.getEncryptedBuffer(), MFSFSKey);
+        Nonce nonces = (Nonce)CryptoUtilities.decryptObject(clientReply.getEncryptedChallenge(), FSUserKey);
+        
+        System.out.println("FS recieved nonces:"+nonces.toString());
+        
+        // verify the challenge I sent
+        String correctChallengeString = props.getProperty("user."+msg.getUserId()+".challenge");
+        Long correctChallenge = Long.parseLong(correctChallengeString);
+        Long recievedChallenge = Long.parseLong(nonces.getNonce());
+        
+        if(recievedChallenge != correctChallenge-1){
+            throw new Exception("Client could not fulfil the FS challenge");
+        }
+        
+        //AMRUTH: start here :) I verfied the challenge in msg#14, you can start building msg #15 here
+        
+        return null;
+        
+    }
+    
 }

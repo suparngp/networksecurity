@@ -112,8 +112,11 @@ public class Client {
             
             //unwrap and process
             Wrapper2 fsChallenge = (Wrapper2)ReaderWriter.deserialize(fsChallengeStream);
-            byte[] MELYSSA = MFSServices.processFSChallenge(fsChallenge);
+            Wrapper2 fsChallengeReply = MFSServices.processFSChallenge(fsChallenge);
             
+            //send the FS Challenge reply back 
+            dos.write(ReaderWriter.serialize(fsChallengeReply));
+            dos.flush();
             
         }   
         

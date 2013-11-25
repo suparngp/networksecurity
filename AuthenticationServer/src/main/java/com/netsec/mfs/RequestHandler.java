@@ -97,7 +97,14 @@ public class RequestHandler extends Thread{
             //send the user challenge to the client
             dos.write(ReaderWriter.serialize(UserChallengeForward));
             dos.flush(); 
-
+            
+            //get the user challenge reply from client and forward to FS
+            Wrapper2 UserChallengeReply = (Wrapper2)ReaderWriter.deserialize(ReaderWriter.readStream(dis));
+            Wrapper2 UserChallengeReplyForward = MFSProvider.processFSUserChallengeReply(UserChallengeReply);
+            
+            FSdos.write(ReaderWriter.serialize(UserChallengeReplyForward));
+            FSdos.flush();
+            
         }
         
         catch(Exception e){

@@ -66,6 +66,9 @@ public class RequestHandler extends Thread{
             dos.flush();
             System.out.println("Sent FS User Challenge from FS");
             
+            //read the user challenge reply (msg #14)
+            Wrapper2 userChallengeReply = (Wrapper2)ReaderWriter.deserialize(ReaderWriter.readStream(dis));
+            byte [] msg15 = FSProvider.processUserChallengeReply(userChallengeReply);
             
         }
         

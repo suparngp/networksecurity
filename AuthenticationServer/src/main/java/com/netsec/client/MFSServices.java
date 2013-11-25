@@ -92,7 +92,7 @@ public class MFSServices {
         return ReaderWriter.serialize(wrapper);
     }
     
-    public static byte[] processFSChallenge(Wrapper2 msg) throws Exception{
+    public static Wrapper2 processFSChallenge(Wrapper2 msg) throws Exception{
         
         //get key and decrypt
         FSClientChallenge fsChallenge = (FSClientChallenge)CryptoUtilities.decryptObject(msg.getEncryptedBuffer(), userMFSKey);
@@ -105,7 +105,31 @@ public class MFSServices {
         
         System.out.println(nonce.toString());
         
+        //prepare challenge response and User to FS challenge
+        FSClientChallenge clientReply = new FSClientChallenge();
+        clientReply.setFileServerName(msg.getFileServerName());
+        clientReply.setUserId(msg.getUserId());
         
-        return null; 
+        //Create a new challenge
+        String newChallenge = String.valueOf(new Random().nextLong());
+        props.setProperty("fs."+fsChallenge.getFileServerName()+".challenge", newChallenge);
+        props.store(new FileOutputStream("client.props"), null);
+        
+        Nonce newNonces = new Nonce();
+        newNonces.setNonce(String.valueOf(Long.parseLong(nonce.getNonce())-1));
+        newNonces.setNonce2(newChallenge);
+        
+        System.out.println("Sending Nonces:"+newNonces.toString());
+        
+        byte[] encryptedFSChallenge = CryptoUtilities.encryptObject(newNonces, userFSKey);
+        clientReply.setEncryptedChallenge(encryptedFSChallenge);
+        
+        //encrypt, and wrap it up 
+        Wrapper2 wrapped = new Wrapper2();
+        wrapped.setEncryptedBuffer(CryptoUtilities.encryptObject(clientReply, userMFSKey));
+        wrapped.setFileServerName(msg.getFileServerName());
+        wrapped.setUserId(msg.getUserId());
+        
+        return wrapped; 
     }
 }
