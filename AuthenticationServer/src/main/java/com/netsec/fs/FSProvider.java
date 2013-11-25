@@ -105,7 +105,20 @@ public class FSProvider {
         
         //TODO: verify timestamp in ticket 3
         
-        //TODO: verify challenge
+        //verify challenge
+       
+        //decrypt the challenge
+        byte[] challengeStream = mfstofs2.getChallenge();
+        CFSIntro challenge = (CFSIntro)CryptoUtilities.decryptObject(challengeStream, MFSFSKey);
+        
+        
+        String correctChallengeString = props.getProperty("mfs.challenge");
+        Long correctChallenge = Long.parseLong(correctChallengeString);
+        Long recievedChallenge = Long.parseLong(challenge.getChallenge());
+        
+        if(recievedChallenge != correctChallenge-1){
+            throw new Exception("Client could not fulfil the FS challenge");
+        }
         
         //get the FS and client key
         String UserFSKeyString = ticket3.getUserFSKey();
