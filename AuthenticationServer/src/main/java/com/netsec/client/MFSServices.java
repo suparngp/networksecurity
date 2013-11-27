@@ -12,6 +12,8 @@ import com.netsec.messages.CMFSChallengeResponse;
 import com.netsec.messages.MFSChallengeResponse;
 import com.netsec.messages.Ticket1;
 import com.netsec.messages.FSClientChallenge;
+import com.netsec.messages.FilePath;
+import com.netsec.messages.FileRequestResponse;
 import com.netsec.messages.Wrapper;
 import com.netsec.messages.Nonce;
 import com.netsec.messages.Wrapper2;
@@ -40,6 +42,9 @@ public class MFSServices {
 
     }
     
+    private static byte[] getFSUserKey(String fileServer) {
+        return(DatatypeConverter.parseBase64Binary(props.getProperty("user.fs."+fileServer)));
+    }
     /**
      * Creates a challenge message to be sent from client to the MFS server
      * @param userId the user ID
@@ -92,6 +97,8 @@ public class MFSServices {
         return ReaderWriter.serialize(wrapper);
     }
     
+ 
+    
     public static Wrapper2 processFSChallenge(Wrapper2 msg) throws Exception{
         
         //get key and decrypt
@@ -131,5 +138,41 @@ public class MFSServices {
         wrapped.setUserId(msg.getUserId());
         
         return wrapped; 
+    }
+    
+    public static FileRequestResponse processFSChallengeResponse(Wrapper2 fsChallengeResp) throws Exception {
+        /*
+        Verify the challenge response from file server.
+        */
+        byte[] fsUserKey = getFSUserKey(fsChallengeResp.getFileServerName());
+        Nonce nonces = (Nonce)CryptoUtilities.decryptObject(fsChallengeResp.getEncryptedBuffer(), fsUserKey);
+        
+        String correctChallengeString = props.getProperty("fs."+fsChallengeResp.getFileServerName()+".challenge");
+        Long correctChallenge = Long.parseLong(correctChallengeString);
+        Long recievedChallenge = Long.parseLong(nonces.getNonce());
+        
+        System.out.println("Received challenge " + recievedChallenge + "Sent challenge " + correctChallenge);
+        if(recievedChallenge != correctChallenge-1){
+            throw new Exception("Client could not fulfil the FS challenge");
+        }
+        
+        /*
+        Create file request.
+        */
+        FileRequestResponse fileRequest = new FileRequestResponse();
+        fileRequest.setUserId(fsChallengeResp.getUserId());
+        fileRequest.setFileServerName(fsChallengeResp.getFileServerName());
+        fileRequest.setFileReqResp(Boolean.TRUE);
+        FilePath file = new FilePath();
+        file.setFilepath("D:\\UTD\\Study Materials\\Network Security\\Project\\File.txt");
+        byte[] encryptFileRequest = CryptoUtilities.encryptObject(file, fsUserKey);
+        fileRequest.setEncryptedBuffer(encryptFileRequest);
+        return(fileRequest);
+    }
+    
+    public static void processFileResponse(FileRequestResponse resp) throws Exception {
+        byte[] userKey = getFSUserKey(resp.getFileServerName());
+        FilePath fpath = (FilePath)CryptoUtilities.decryptObject(resp.getEncryptedBuffer(), userKey);
+        System.out.println("File Path Resp " + fpath.getFilepath());
     }
 }

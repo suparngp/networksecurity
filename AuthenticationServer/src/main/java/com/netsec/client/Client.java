@@ -9,6 +9,7 @@ import com.netsec.commons.ReaderWriter;
 import com.netsec.messages.CMFS1;
 import com.netsec.messages.ChallengeMessage;
 import com.netsec.messages.CloseSocket;
+import com.netsec.messages.FileRequestResponse;
 import com.netsec.messages.GenericMessage;
 import com.netsec.messages.Intro;
 import com.netsec.messages.MessageType;
@@ -17,6 +18,7 @@ import com.netsec.messages.Wrapper;
 import com.netsec.messages.Wrapper2;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -118,6 +120,15 @@ public class Client {
             dos.write(ReaderWriter.serialize(fsChallengeReply));
             dos.flush();
             
+            //Get file server challenge Response
+            Wrapper2 fsChallengeResponse = (Wrapper2)ReaderWriter.deserialize(ReaderWriter.readStream(dis));
+            FileRequestResponse filereq = MFSServices.processFSChallengeResponse(fsChallengeResponse);
+            dos.write(ReaderWriter.serialize(filereq));
+            dos.flush();
+            
+            //Get file
+            FileRequestResponse fileresp = (FileRequestResponse)ReaderWriter.deserialize(ReaderWriter.readStream(dis));
+            MFSServices.processFileResponse(fileresp);
         }   
         
         

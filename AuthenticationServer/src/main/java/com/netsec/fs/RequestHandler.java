@@ -5,13 +5,15 @@
 package com.netsec.fs;
 
 import com.netsec.commons.ReaderWriter;
-import com.netsec.commons.CryptoUtilities; 
 import com.netsec.messages.CMFS1;
 import com.netsec.messages.Wrapper;
 import com.netsec.messages.Wrapper2; 
-import com.netsec.messages.CMFSChallengeResponse;
+import com.netsec.messages.FileData;
+import com.netsec.messages.FileRequestResponse;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -46,30 +48,53 @@ public class RequestHandler extends Thread{
             //get the MFSFS challenge 
             byte[] cmfs1Stream = ReaderWriter.readStream(dis);
             CMFS1 MFSchallenge = (CMFS1)ReaderWriter.deserialize(cmfs1Stream);
-            
-            //process and send response
+            //Process Ticket 2 from MFS
+            //send challenge response to MFS (msg 9)
             Wrapper MFSchallengeResponse = FSProvider.processMFSChallenge(MFSchallenge); 
-            
-            
             dos.write(ReaderWriter.serialize(MFSchallengeResponse));
             dos.flush();
             System.out.println("Process MFS Challenge and send response.");
             
-            //get MFStoFS2
+            
             byte[] MFStoFS2stream = ReaderWriter.readStream(dis);
             CMFS1 MFStoFS2 = (CMFS1)ReaderWriter.deserialize(MFStoFS2stream);
-            
+            //Process Ticket 3 from MFS and process challenge response from MFS
+            //Send challenge to Client. (msg 11)
             Wrapper2 UserChallenge = FSProvider.processMFStoFS2(MFStoFS2);
-            
-            //send the user challenge (msg #11)
             dos.write(ReaderWriter.serialize(UserChallenge));
             dos.flush();
             System.out.println("Sent FS User Challenge from FS");
             
-            //read the user challenge reply (msg #14)
-            Wrapper2 userChallengeReply = (Wrapper2)ReaderWriter.deserialize(ReaderWriter.readStream(dis));
-            byte [] msg15 = FSProvider.processUserChallengeReply(userChallengeReply);
+            byte[] ClienttoFSStream = ReaderWriter.readStream(dis);
+            Wrapper2 userChallengeReply = (Wrapper2)ReaderWriter.deserialize(ClienttoFSStream);
+            //Process challenge response from Client
+            //Send challenge response to Client
+            Wrapper2 fsChallengeToUser = FSProvider.processUserChallengeReply(userChallengeReply);
+            dos.write(ReaderWriter.serialize(fsChallengeToUser));
+            dos.flush();
+            System.out.println(" Sent Challenge Response to Client from FS");
             
+            byte[] fileRequestStream = ReaderWriter.readStream(dis);
+            FileRequestResponse fileRequest = (FileRequestResponse)ReaderWriter.deserialize(fileRequestStream);
+            
+            
+            /*
+            Test Code
+            */
+            FileInputStream fips = FSProvider.getFileInputStream(fileRequest);
+            boolean moreData = true;
+            int blockNo = 0;
+            FileOutputStream fops = new FileOutputStream("D:\\UTD\\Study Materials\\Network Security\\Project\\File1.txt");
+            while(moreData) {
+                FileData fdata = FSProvider.getBlock(fips, blockNo);
+                moreData = fdata.isMoreData();
+                FSProvider.setBlock(fops, fdata);
+                blockNo++;
+            }
+            FileRequestResponse fileResponse = FSProvider.processFileRequest(fileRequest);
+            dos.write(ReaderWriter.serialize(fileResponse));
+            dos.flush();
+            System.out.println("Sent File Reply from FS");
         }
         
         catch(Exception e){

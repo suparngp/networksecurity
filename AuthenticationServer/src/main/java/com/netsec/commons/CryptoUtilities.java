@@ -71,4 +71,20 @@ public class CryptoUtilities {
         String s = DatatypeConverter.printBase64Binary(original);
         return s;
     }
+    
+    public static byte[] encryptRaw(byte[] raw, byte[] key) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        SecretKeySpec spec = new SecretKeySpec(key, "AES");
+        cipher.init(Cipher.ENCRYPT_MODE, spec);
+        byte[] encrypted =  cipher.doFinal(raw);
+        return encrypted;
+    }
+    
+    public static byte[] decryptRaw(byte[] encryptedBuffer, byte[] key) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        SecretKeySpec spec = new SecretKeySpec(key, "AES");
+        cipher.init(Cipher.DECRYPT_MODE, spec);
+        byte[] raw = cipher.doFinal(encryptedBuffer);
+        return(raw);
+    }
 }

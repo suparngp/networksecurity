@@ -5,13 +5,14 @@
 package com.netsec.fs;
 
 import com.netsec.commons.CryptoUtilities;
-import com.netsec.messages.CFSIntro;
 import com.netsec.messages.CMFS1;
 import com.netsec.messages.MFSFSChallengeResponse;
-import com.netsec.messages.CMFSChallengeResponse; 
 import com.netsec.messages.Nonce;
 import com.netsec.messages.FSClientChallenge;
 import com.netsec.messages.CFSIntro; 
+import com.netsec.messages.FileData;
+import com.netsec.messages.FilePath;
+import com.netsec.messages.FileRequestResponse;
 import com.netsec.messages.Ticket2;
 import com.netsec.messages.Ticket3; 
 import com.netsec.messages.Wrapper; 
@@ -39,6 +40,12 @@ public class FSProvider {
             System.out.println("Error: Unable to load FS data file");
             e.printStackTrace();
         }
+    }
+    
+    private static byte[] getUserKey(String userID) {
+        String FSUserKeyString = props.getProperty("user."+userID+".key");
+        byte[] FSUserKey = DatatypeConverter.parseBase64Binary(FSUserKeyString);
+        return(FSUserKey);
     }
     
     /**
@@ -87,10 +94,13 @@ public class FSProvider {
         Wrapper wrapped = new Wrapper();
         wrapped.setUserId(ticket2.getServerName());
         wrapped.setEncryptedBuffer(encrypted);
-       
+        
         return wrapped; 
     }
     
+    /*
+    * Sets server name to accounts in response
+    */
     public static Wrapper2 processMFStoFS2(CMFS1 mfstofs2) throws Exception{
 
         //get the MFS and FS key
@@ -155,7 +165,7 @@ public class FSProvider {
         return wrapped;
     }
     
-    public static byte[] processUserChallengeReply(Wrapper2 msg) throws Exception{
+    public static Wrapper2 processUserChallengeReply(Wrapper2 msg) throws Exception{
         
                 
         //get the MFS - FS key and the FS - User key
@@ -181,8 +191,60 @@ public class FSProvider {
         
         //AMRUTH: start here :) I verfied the challenge in msg#14, you can start building msg #15 here
         
-        return null;
+        Wrapper2 chRespWrapped = new Wrapper2();        
+        Nonce respNonces = new Nonce();
+        respNonces.setNonce(String.valueOf(Long.parseLong(nonces.getNonce2())-1));
+        byte[] encryptedFSChallenge = CryptoUtilities.encryptObject(respNonces, FSUserKey);
+        chRespWrapped.setEncryptedBuffer(encryptedFSChallenge);
+        chRespWrapped.setFileServerName(msg.getFileServerName());
+        System.out.println("Resp to Server" + chRespWrapped.getFileServerName());
+        chRespWrapped.setUserId(msg.getUserId());
+        
+        //byte[] encryptedWrapper = CryptoUtilities.encryptObject(chRespWrapped, MFSFSKey);
+        return chRespWrapped;
         
     }
     
+    public static FileInputStream getFileInputStream(FileRequestResponse request) throws Exception {
+        byte[] userKey = getUserKey(request.getUserId());
+        FilePath fpath = (FilePath)CryptoUtilities.decryptObject(request.getEncryptedBuffer(), userKey);
+        System.out.println("File Path " + fpath.getFilepath());
+        return(new FileInputStream(fpath.getFilepath()));
+    }
+        
+    public static FileData getBlock(FileInputStream file, int block) throws Exception {
+        int retVal = 0;
+        int blockLen = 4096;
+        byte[] data = new byte[blockLen];
+        int offset = block * blockLen;
+        retVal = file.read(data, offset, blockLen);
+        FileData fdata = new FileData();
+        fdata.setBlockLength(blockLen);
+        fdata.setBlockNo(block);
+        fdata.setDataLength(retVal);
+        fdata.setData(data);
+        fdata.setMoreData(true);
+        if(retVal < blockLen) {
+            fdata.setMoreData(false);
+        }
+        return(fdata);
+    }
+    
+    public static void setBlock(FileOutputStream file, FileData fdata) throws Exception {
+        int off = fdata.getBlockNo() * fdata.getBlockLength();
+        file.write(fdata.getData(), off, fdata.getDataLength());
+    }
+   
+    public static FileRequestResponse processFileRequest(FileRequestResponse request) throws Exception {
+        FilePath fresp = new FilePath();
+        byte[] userKey = getUserKey(request.getUserId());
+        FileRequestResponse fileResponse = new FileRequestResponse();
+        fileResponse.setUserId(request.getUserId());
+        fileResponse.setFileServerName(request.getFileServerName());
+        fileResponse.setFileReqResp(Boolean.FALSE);
+        byte[] encryptFileRequest = CryptoUtilities.encryptObject(fresp, userKey);
+        fileResponse.setEncryptedBuffer(encryptFileRequest);
+        return(fileResponse);
+    }
+   
 }

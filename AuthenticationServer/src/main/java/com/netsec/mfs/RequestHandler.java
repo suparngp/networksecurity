@@ -58,7 +58,7 @@ public class RequestHandler extends Thread{
             
             //read the challenge response and the ticket2 and ticket3 
             Wrapper2 wrapper = (Wrapper2)ReaderWriter.deserialize(ReaderWriter.readStream(dis));
-            System.out.println(wrapper.getUserId());
+            System.out.println("MFS User ID: Server name " + wrapper.getUserId() + ":" + wrapper.getFileServerName());
             byte[] clientRespBuffer = wrapper.getEncryptedBuffer(); 
             
             //get the key
@@ -101,10 +101,33 @@ public class RequestHandler extends Thread{
             //get the user challenge reply from client and forward to FS
             Wrapper2 UserChallengeReply = (Wrapper2)ReaderWriter.deserialize(ReaderWriter.readStream(dis));
             Wrapper2 UserChallengeReplyForward = MFSProvider.processFSUserChallengeReply(UserChallengeReply);
-            
             FSdos.write(ReaderWriter.serialize(UserChallengeReplyForward));
             FSdos.flush();
             
+            /*
+            To Do(Amruth): As in processFSUserChallengeReply, MFS is not allowed to decrypt and encrypt the challenge
+            MFS has to maintain port-fs name and port - user name mapping probably
+            Discuss with team again.
+            */
+         
+            /*
+            Forward Challenge Reply from FS to Client
+            */
+            Wrapper2 FSChallengeReply = (Wrapper2)ReaderWriter.deserialize(ReaderWriter.readStream(FSdis));
+            dos.write(ReaderWriter.serialize(FSChallengeReply));
+            dos.flush();
+            
+            /*
+            Relay file Request to server
+            */
+            FSdos.write(ReaderWriter.readStream(dis));
+            FSdos.flush();
+            
+            /*
+            Relay file Response to client
+            */
+            dos.write(ReaderWriter.readStream(FSdis));
+            dos.flush();
         }
         
         catch(Exception e){

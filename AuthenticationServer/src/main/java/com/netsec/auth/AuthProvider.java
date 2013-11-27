@@ -25,6 +25,7 @@ public class AuthProvider {
 
     private static final Properties props = new Properties();
     
+    
     static{
         try{
             props.load(new FileInputStream("datastore.props"));
@@ -40,7 +41,7 @@ public class AuthProvider {
         byte[] key = getUserAuthKey(userId);
         
         String challenge = String.valueOf(new Random().nextLong());
-        
+        //System.out.println("HELLO");
         //write the challenge in the data file
         props.setProperty("user." + userId + ".challenge", challenge.toString());
         props.store(new FileOutputStream("datastore.props"), null);
