@@ -84,16 +84,16 @@ public class RequestHandler extends Thread{
             FileInputStream fips = FSProvider.getFileInputStream(fileRequest);
             boolean moreData = true;
             int blockNo = 0;
-            FileOutputStream fops = new FileOutputStream("D:\\UTD\\Study Materials\\Network Security\\Project\\File1.txt");
             while(moreData) {
                 FileData fdata = FSProvider.getBlock(fips, blockNo);
+                FileRequestResponse fileResponse = FSProvider.processFileRequest(fileRequest, fdata);
+                dos.write(ReaderWriter.serialize(fileResponse));
+                dos.flush();
                 moreData = fdata.isMoreData();
-                FSProvider.setBlock(fops, fdata);
+                //FSProvider.setBlock(fops, fdata);
                 blockNo++;
             }
-            FileRequestResponse fileResponse = FSProvider.processFileRequest(fileRequest);
-            dos.write(ReaderWriter.serialize(fileResponse));
-            dos.flush();
+            
             System.out.println("Sent File Reply from FS");
         }
         

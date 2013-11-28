@@ -10,7 +10,7 @@ package com.netsec.messages;
  *
  * @author AMGP
  */
-public class FileData {
+public class FileData extends GenericMessage {
     int blockNo;
     int blockLength;
     int dataLength;

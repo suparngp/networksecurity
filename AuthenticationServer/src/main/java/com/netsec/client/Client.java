@@ -18,6 +18,7 @@ import com.netsec.messages.Wrapper;
 import com.netsec.messages.Wrapper2;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.Socket;
@@ -127,8 +128,13 @@ public class Client {
             dos.flush();
             
             //Get file
-            FileRequestResponse fileresp = (FileRequestResponse)ReaderWriter.deserialize(ReaderWriter.readStream(dis));
-            MFSServices.processFileResponse(fileresp);
+            FileOutputStream fops = new FileOutputStream("D:\\UTD\\Study Materials\\Network Security\\Project\\File1.txt");
+            while(true) {
+                FileRequestResponse fileresp = (FileRequestResponse)ReaderWriter.deserialize(ReaderWriter.readStream(dis));
+                boolean moreData = MFSServices.processFileResponse(fileresp, fops);
+                if (moreData == false) break;
+            }
+            fops.close();
         }   
         
         

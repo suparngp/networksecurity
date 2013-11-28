@@ -1,9 +1,9 @@
-#Wed Nov 27 15:51:23 CST 2013
+#Wed Nov 27 23:57:15 CST 2013
 datastore.name=auth
-user.1234.challenge=5485637039629955006
-user.1234.fs.accounts=GS9ho3ZFOXo3t3M1EcX0KA\=\=
-user.1234.key=NWbJFwpZTvceA3CxVVKXpQ\=\=
+user.1234.challenge=1289153387646237731
+user.1234.fs.accounts=hqBT58/OGxC5C4kuPmFBzQ\=\=
+user.1234.mfs.fs=u4co5bjogsNy65B3/9Km0A\=\=
+user.1234.mfs=nmwNIOivrqebwDL19plygQ\=\=
 auth.fs.accounts=SSFEoNqoepqn0ugDWf8rvg\=\=
-user.1234.mfs=noweb0/14Vp9/tpgYDXXcg\=\=
-user.1234.mfs.fs=8Aor7fSMFjSnaekXhKLAig\=\=
+user.1234.key=NWbJFwpZTvceA3CxVVKXpQ\=\=
 auth.mfs=GBB4sU8LNXwxFINyj9kejw\=\=

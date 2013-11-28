@@ -7,14 +7,12 @@ package com.netsec.client;
 import com.netsec.commons.CryptoUtilities;
 import com.netsec.commons.ReaderWriter;
 import com.netsec.messages.CFSIntro;
-import com.netsec.messages.CMFS1;
 import com.netsec.messages.CMFSChallengeResponse;
 import com.netsec.messages.MFSChallengeResponse;
-import com.netsec.messages.Ticket1;
 import com.netsec.messages.FSClientChallenge;
+import com.netsec.messages.FileData;
 import com.netsec.messages.FilePath;
 import com.netsec.messages.FileRequestResponse;
-import com.netsec.messages.Wrapper;
 import com.netsec.messages.Nonce;
 import com.netsec.messages.Wrapper2;
 import java.io.FileInputStream;
@@ -140,6 +138,11 @@ public class MFSServices {
         return wrapped; 
     }
     
+    public static void setBlock(FileOutputStream file, FileData fdata) throws Exception {
+        int off = fdata.getBlockNo() * fdata.getBlockLength();
+        file.write(fdata.getData(), off, fdata.getDataLength());
+    }
+    
     public static FileRequestResponse processFSChallengeResponse(Wrapper2 fsChallengeResp) throws Exception {
         /*
         Verify the challenge response from file server.
@@ -170,9 +173,10 @@ public class MFSServices {
         return(fileRequest);
     }
     
-    public static void processFileResponse(FileRequestResponse resp) throws Exception {
+    public static boolean processFileResponse(FileRequestResponse resp, FileOutputStream fops) throws Exception {
         byte[] userKey = getFSUserKey(resp.getFileServerName());
-        FilePath fpath = (FilePath)CryptoUtilities.decryptObject(resp.getEncryptedBuffer(), userKey);
-        System.out.println("File Path Resp " + fpath.getFilepath());
+        FileData fdata = (FileData)CryptoUtilities.decryptObject(resp.getEncryptedBuffer(), userKey);
+        setBlock(fops, fdata);
+        return(fdata.isMoreData());
     }
 }

@@ -126,8 +126,10 @@ public class RequestHandler extends Thread{
             /*
             Relay file Response to client
             */
-            dos.write(ReaderWriter.readStream(FSdis));
-            dos.flush();
+            while(true) {
+                dos.write(ReaderWriter.readStream(FSdis));
+                dos.flush();
+            }
         }
         
         catch(Exception e){

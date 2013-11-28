@@ -230,19 +230,16 @@ public class FSProvider {
         return(fdata);
     }
     
-    public static void setBlock(FileOutputStream file, FileData fdata) throws Exception {
-        int off = fdata.getBlockNo() * fdata.getBlockLength();
-        file.write(fdata.getData(), off, fdata.getDataLength());
-    }
+
    
-    public static FileRequestResponse processFileRequest(FileRequestResponse request) throws Exception {
-        FilePath fresp = new FilePath();
+    public static FileRequestResponse processFileRequest(FileRequestResponse request, FileData fdata) throws Exception {
         byte[] userKey = getUserKey(request.getUserId());
+        
         FileRequestResponse fileResponse = new FileRequestResponse();
         fileResponse.setUserId(request.getUserId());
         fileResponse.setFileServerName(request.getFileServerName());
         fileResponse.setFileReqResp(Boolean.FALSE);
-        byte[] encryptFileRequest = CryptoUtilities.encryptObject(fresp, userKey);
+        byte[] encryptFileRequest = CryptoUtilities.encryptObject(fdata, userKey);
         fileResponse.setEncryptedBuffer(encryptFileRequest);
         return(fileResponse);
     }
