@@ -128,7 +128,7 @@ public class Client {
             dos.flush();
             
             //Get file
-            FileOutputStream fops = new FileOutputStream("D:\\UTD\\Study Materials\\Network Security\\Project\\File1.txt");
+            FileOutputStream fops = new FileOutputStream("accounts/files/report.txt");
             while(true) {
                 FileRequestResponse fileresp = (FileRequestResponse)ReaderWriter.deserialize(ReaderWriter.readStream(dis));
                 boolean moreData = MFSServices.processFileResponse(fileresp, fops);

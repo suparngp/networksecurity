@@ -167,7 +167,7 @@ public class MFSServices {
         fileRequest.setFileServerName(fsChallengeResp.getFileServerName());
         fileRequest.setFileReqResp(Boolean.TRUE);
         FilePath file = new FilePath();
-        file.setFilepath("D:\\UTD\\Study Materials\\Network Security\\Project\\File.txt");
+        file.setFilepath("accounts/files/data.txt");
         byte[] encryptFileRequest = CryptoUtilities.encryptObject(file, fsUserKey);
         fileRequest.setEncryptedBuffer(encryptFileRequest);
         return(fileRequest);
