@@ -3,7 +3,6 @@
 import com.netsec.auth.Server;
 import com.netsec.mfs.MFSServer;
 import com.netsec.fs.FSServer; 
-import java.io.File;
 
 /**
  * Hello world!

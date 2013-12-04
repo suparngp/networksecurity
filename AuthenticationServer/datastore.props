@@ -1,9 +1,10 @@
-#Wed Nov 27 23:57:15 CST 2013
-datastore.name=auth
-user.1234.challenge=1289153387646237731
-user.1234.fs.accounts=hqBT58/OGxC5C4kuPmFBzQ\=\=
-user.1234.mfs.fs=u4co5bjogsNy65B3/9Km0A\=\=
-user.1234.mfs=nmwNIOivrqebwDL19plygQ\=\=
-auth.fs.accounts=SSFEoNqoepqn0ugDWf8rvg\=\=
+#Wed Dec 04 14:36:57 CST 2013
+can.user.1234.access.fs.accounts=true;
 user.1234.key=NWbJFwpZTvceA3CxVVKXpQ\=\=
+auth.fs.accounts=SSFEoNqoepqn0ugDWf8rvg\=\=
+user.1234.mfs=+g+1S5RsJYfr3OZZDdP6rA\=\=
+user.1234.fs.accounts=zr/sUm+FjONcbzjesXSQ9w\=\=
+user.1234.mfs.fs=bTID2TkqTlAEplV28PWqLA\=\=
 auth.mfs=GBB4sU8LNXwxFINyj9kejw\=\=
+datastore.name=auth
+user.1234.challenge=8371149945325615521

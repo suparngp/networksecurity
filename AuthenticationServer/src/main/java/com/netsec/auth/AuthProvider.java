@@ -63,6 +63,10 @@ public class AuthProvider {
         if(!serverChallenge.equals(cc.getServerChallenge())){
             throw new Exception("Client could not fulfil the challenge");
         }
+        String canUserAccess = props.getProperty("can.user." + userId.trim() + ".access.fs." + cc.getFileServerName());
+        if(canUserAccess == null || "false".equals(canUserAccess)){
+            throw new Exception("Client is not authorized to access the requested Server");
+        }
         String fileServerName = cc.getFileServerName();
         long expiration = System.currentTimeMillis() + 50000;
         TicketsResponse res = new TicketsResponse();
