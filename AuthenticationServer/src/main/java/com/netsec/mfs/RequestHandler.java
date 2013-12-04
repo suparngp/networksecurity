@@ -129,6 +129,7 @@ public class RequestHandler extends Thread {
         } catch (Exception e) {
             System.out.println("Error: unable to process client request on Master File Server");
             e.printStackTrace();
+            shutdown();
         }
     }
 

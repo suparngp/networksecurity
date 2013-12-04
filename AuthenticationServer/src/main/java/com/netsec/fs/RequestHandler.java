@@ -76,11 +76,19 @@ public class RequestHandler extends Thread{
             byte[] fileRequestStream = ReaderWriter.readStream(dis);
             FileRequestResponse fileRequest = (FileRequestResponse)ReaderWriter.deserialize(fileRequestStream);
             
-            
+            FileInputStream fips = null;
             /*
             Test Code
             */
-            FileInputStream fips = FSProvider.getFileInputStream(fileRequest);
+            try{
+                fips = FSProvider.getFileInputStream(fileRequest);
+            }
+            catch(Exception e){
+                e.printStackTrace();
+                dos.write(e.getMessage().getBytes("UTF-8"));
+                throw e;
+            }
+            
             boolean moreData = true;
             int blockNo = 0;
             while(moreData) {
@@ -99,6 +107,7 @@ public class RequestHandler extends Thread{
         catch(Exception e){
             System.out.println("Error: unable to process client request on File Server");
             e.printStackTrace();
+            shutdown();
         }
     }
     

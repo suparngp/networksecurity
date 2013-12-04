@@ -17,6 +17,7 @@ import com.netsec.messages.Ticket2;
 import com.netsec.messages.Ticket3; 
 import com.netsec.messages.Wrapper; 
 import com.netsec.messages.Wrapper2;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -209,6 +210,10 @@ public class FSProvider {
         byte[] userKey = getUserKey(request.getUserId());
         FilePath fpath = (FilePath)CryptoUtilities.decryptObject(request.getEncryptedBuffer(), userKey);
         System.out.println("File Path " + fpath.getFilepath());
+        File file = new File (fpath.getFilepath());
+        if(!file.exists()){
+            throw new Exception("File does not exist on the server");
+        }
         return(new FileInputStream(fpath.getFilepath()));
     }
         

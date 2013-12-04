@@ -130,17 +130,24 @@ public class Client {
             //Get file
             FileOutputStream fops = new FileOutputStream("accounts/files/report.txt");
             while(true) {
-                FileRequestResponse fileresp = (FileRequestResponse)ReaderWriter.deserialize(ReaderWriter.readStream(dis));
+                byte[] parts = ReaderWriter.readStream(dis);
+                String response = new String(parts);
+                if(response.contains("File does not exist on the server")){
+                    System.out.println(response);
+                    System.out.println("Closing the connection");
+                    break;
+                }
+                FileRequestResponse fileresp = (FileRequestResponse)ReaderWriter.deserialize(parts);
                 boolean moreData = MFSServices.processFileResponse(fileresp, fops);
                 if (moreData == false) break;
             }
             fops.close();
         }   
         
-        
         catch(Exception e){
-            System.out.println("Error: Unable to connect to the authentication server");
+            System.out.println("Connection Terminated");
             e.printStackTrace();
+            shutdown();
         }
     }
 
