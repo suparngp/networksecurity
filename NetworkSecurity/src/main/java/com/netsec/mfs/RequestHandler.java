@@ -46,22 +46,24 @@ public class RequestHandler extends Thread {
             //get the cmfs1 message 
             byte[] cmfs1Stream = ReaderWriter.readStream(dis);
             CMFS1 cmfs1 = (CMFS1) ReaderWriter.deserialize(cmfs1Stream);
+            
+            MFSProvider.printLog("received msg: " + cmfs1.toString());
 
             //process the client challenge and send the challenge
             byte[] serverChallenge = MFSProvider.processClientChallenge(cmfs1);
+            MFSProvider.printLog("sending msg: {" + serverChallenge+"}");
             dos.write(serverChallenge);
             dos.flush();
-            System.out.println("Process Client Challenge and send response.");
 
             //read the challenge response and the ticket2 and ticket3 
             Wrapper2 wrapper = (Wrapper2) ReaderWriter.deserialize(ReaderWriter.readStream(dis));
-            System.out.println("MFS User ID: Server name " + wrapper.getUserId() + ":" + wrapper.getFileServerName());
             byte[] clientRespBuffer = wrapper.getEncryptedBuffer();
 
             //get the key
             byte[] key = MFSProvider.getCMFSKey(wrapper.getUserId());
             MFSChallengeResponse clientChallengeResp = (MFSChallengeResponse) CryptoUtilities.decryptObject(clientRespBuffer, key);
-
+            MFSProvider.printLog("received msg: " + clientChallengeResp.toString());
+            
             byte[] ticket3 = clientChallengeResp.getTicket3();
 
             CMFS1 mfsfschallenge = MFSProvider.processMFSChallengeResponse(clientChallengeResp, wrapper.getUserId(), wrapper.getFileServerName());
