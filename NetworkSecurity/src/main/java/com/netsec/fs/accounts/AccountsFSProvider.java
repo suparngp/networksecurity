@@ -214,7 +214,7 @@ public class AccountsFSProvider {
     public static FileInputStream getFileInputStream(FileRequestResponse request) throws Exception {
         byte[] userKey = getUserKey(request.getUserId());
         FilePath fpath = (FilePath)CryptoUtilities.decryptObject(request.getEncryptedBuffer(), userKey);
-        System.out.println("File Path " + fpath.getFilepath());
+        printLog("decrypt file path: " + fpath.getFilepath());
         File file = new File (fpath.getFilepath());
         if(!file.exists()){
             throw new Exception("File does not exist on the server");
@@ -251,6 +251,7 @@ public class AccountsFSProvider {
         fileResponse.setFileReqResp(Boolean.FALSE);
         byte[] encryptFileRequest = CryptoUtilities.encryptObject(fdata, userKey);
         fileResponse.setEncryptedBuffer(encryptFileRequest);
+        printLog("sending msg: "+fileResponse.toString());
         return(fileResponse);
     }
    

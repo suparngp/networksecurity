@@ -102,7 +102,6 @@ public class AccountsFSRequestHandler extends Thread{
                 blockNo++;
             }
             
-            System.out.println("Sent File Reply from FS");
         }
         
         catch(Exception e){
