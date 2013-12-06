@@ -62,7 +62,7 @@ public class RequestHandler extends Thread {
             //get the key
             byte[] key = MFSProvider.getCMFSKey(wrapper.getUserId());
             MFSChallengeResponse clientChallengeResp = (MFSChallengeResponse) CryptoUtilities.decryptObject(clientRespBuffer, key);
-            MFSProvider.printLog("received msg: " + clientChallengeResp.toString());
+            MFSProvider.printLog("received msg : " + clientChallengeResp.toString());
             
             byte[] ticket3 = clientChallengeResp.getTicket3();
 
@@ -73,6 +73,7 @@ public class RequestHandler extends Thread {
             DataInputStream FSdis = new DataInputStream(fsSocket.getInputStream());
             DataOutputStream FSdos = new DataOutputStream(fsSocket.getOutputStream());
 
+            MFSProvider.printLog("sending msg: "+mfsfschallenge.toString());
             FSdos.write(ReaderWriter.serialize(mfsfschallenge));
             FSdos.flush();
 
@@ -86,6 +87,7 @@ public class RequestHandler extends Thread {
             MFStoFS2WithTicket3.setChallenge(MFStoFS2);
             MFStoFS2WithTicket3.setTicket(ticket3);
 
+            MFSProvider.printLog("sending msg: "+MFStoFS2WithTicket3.toString());
             FSdos.write(ReaderWriter.serialize(MFStoFS2WithTicket3));
             FSdos.flush();
 
@@ -112,12 +114,15 @@ public class RequestHandler extends Thread {
              Forward Challenge Reply from FS to Client
              */
             Wrapper2 FSChallengeReply = (Wrapper2) ReaderWriter.deserialize(ReaderWriter.readStream(FSdis));
+            MFSProvider.printLog("recieved msg: "+FSChallengeReply);
+            MFSProvider.printLog("forwarding msg: "+FSChallengeReply);
             dos.write(ReaderWriter.serialize(FSChallengeReply));
             dos.flush();
 
             /*
              Relay file Request to server
              */
+            MFSProvider.printLog("relaying file request to file server");
             FSdos.write(ReaderWriter.readStream(dis));
             FSdos.flush();
 
@@ -125,11 +130,12 @@ public class RequestHandler extends Thread {
              Relay file Response to client
              */
             while (true) {
+                MFSProvider.printLog("relaying file response to client");
                 dos.write(ReaderWriter.readStream(FSdis));
                 dos.flush();
             }
         } catch (Exception e) {
-            System.out.println("Error: unable to process client request on Master File Server");
+            MFSProvider.printLog("Error: unable to process client request on Master File Server");
             e.printStackTrace();
             shutdown();
         }
@@ -141,7 +147,7 @@ public class RequestHandler extends Thread {
             dis.close();
             socket.close();
         } catch (IOException e) {
-            System.out.println("Error: unable to close the client socket on Master File Server");
+            MFSProvider.printLog("Error: unable to close the client socket on Master File Server");
             e.printStackTrace();
         }
     }
