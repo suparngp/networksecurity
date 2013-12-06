@@ -59,6 +59,7 @@ public class MFSServices {
         intro.setChallenge(challenge);
         props.setProperty("mfs.challenge." + fileServerName, challenge);
         props.store(new FileOutputStream("client.props"), challenge);
+        AuthServices.printLog("prepare MFS challenge: " + intro.toString());
         return CryptoUtilities.encryptObject(intro, userMFSKey);
     }
     
@@ -74,7 +75,7 @@ public class MFSServices {
         userMFSKey = DatatypeConverter.parseBase64Binary(props.getProperty("user.mfs"));
         CMFSChallengeResponse cmfscr = (CMFSChallengeResponse)CryptoUtilities
                 .decryptObject(serverChallenge, userMFSKey);
-        System.out.println(cmfscr);
+        AuthServices.printLog("received msg: "+cmfscr);
         long recChallenge = Long.parseLong(cmfscr.getClientChallenge());
         long sentChallenge = Long.parseLong(props.getProperty("mfs.challenge." + cmfscr.getFileServerName()));
         if(sentChallenge - 1 != recChallenge){
@@ -88,10 +89,12 @@ public class MFSServices {
         mfscr.setTicket2(ticket2);
         mfscr.setTicket3(ticket3);
         mfscr.setUserId(cmfscr.getUserId());
+        AuthServices.printLog("prepare msg: "+mfscr.toString());
         Wrapper2 wrapper = new Wrapper2();
         wrapper.setUserId(cmfscr.getUserId());
         wrapper.setEncryptedBuffer(CryptoUtilities.encryptObject(mfscr, userMFSKey));
         wrapper.setFileServerName(cmfscr.getFileServerName());
+        AuthServices.printLog("sending msg: "+wrapper.toString());
         return ReaderWriter.serialize(wrapper);
     }
     
@@ -102,13 +105,13 @@ public class MFSServices {
         //get key and decrypt
         FSClientChallenge fsChallenge = (FSClientChallenge)CryptoUtilities.decryptObject(msg.getEncryptedBuffer(), userMFSKey);
         
-        System.out.println("Recieved FS Challenge "+fsChallenge.toString());
+        AuthServices.printLog("recieved msg: "+fsChallenge.toString());
         
         //get User FS key and decrypt nonce
         byte[] userFSKey = DatatypeConverter.parseBase64Binary(props.getProperty("user.fs."+msg.getFileServerName()));
         Nonce nonce = (Nonce)CryptoUtilities.decryptObject(fsChallenge.getEncryptedChallenge(), userFSKey);
         
-        System.out.println(nonce.toString());
+        AuthServices.printLog("decrypt nonce: "+nonce.toString());
         
         //prepare challenge response and User to FS challenge
         FSClientChallenge clientReply = new FSClientChallenge();
@@ -124,16 +127,19 @@ public class MFSServices {
         newNonces.setNonce(String.valueOf(Long.parseLong(nonce.getNonce())-1));
         newNonces.setNonce2(newChallenge);
         
-        System.out.println("Sending Nonces:"+newNonces.toString());
+        AuthServices.printLog("prepare nonces:"+newNonces.toString());
         
         byte[] encryptedFSChallenge = CryptoUtilities.encryptObject(newNonces, userFSKey);
         clientReply.setEncryptedChallenge(encryptedFSChallenge);
+        AuthServices.printLog("prepare msg: "+encryptedFSChallenge);
         
         //encrypt, and wrap it up 
         Wrapper2 wrapped = new Wrapper2();
         wrapped.setEncryptedBuffer(CryptoUtilities.encryptObject(clientReply, userMFSKey));
         wrapped.setFileServerName(msg.getFileServerName());
         wrapped.setUserId(msg.getUserId());
+        
+        AuthServices.printLog("sending msg: "+ wrapped.toString());
         
         return wrapped; 
     }
@@ -149,12 +155,14 @@ public class MFSServices {
         */
         byte[] fsUserKey = getFSUserKey(fsChallengeResp.getFileServerName());
         Nonce nonces = (Nonce)CryptoUtilities.decryptObject(fsChallengeResp.getEncryptedBuffer(), fsUserKey);
+        AuthServices.printLog("received msg: "+fsChallengeResp.toString());
+        AuthServices.printLog("decrypt nonces: "+ nonces.toString());
         
         String correctChallengeString = props.getProperty("fs."+fsChallengeResp.getFileServerName()+".challenge");
         Long correctChallenge = Long.parseLong(correctChallengeString);
         Long recievedChallenge = Long.parseLong(nonces.getNonce());
         
-        System.out.println("Received challenge " + recievedChallenge + "Sent challenge " + correctChallenge);
+        //System.out.println("Received challenge " + recievedChallenge + "Sent challenge " + correctChallenge);
         if(recievedChallenge != correctChallenge-1){
             throw new Exception("Client could not fulfil the FS challenge");
         }
@@ -168,8 +176,11 @@ public class MFSServices {
         fileRequest.setFileReqResp(Boolean.TRUE);
         FilePath file = new FilePath();
         file.setFilepath(props.getProperty("file.request.location"));
+        AuthServices.printLog("requesting file "+file.toString());
         byte[] encryptFileRequest = CryptoUtilities.encryptObject(file, fsUserKey);
         fileRequest.setEncryptedBuffer(encryptFileRequest);
+        AuthServices.printLog("sending msg: "+ fileRequest.toString());
+        
         return(fileRequest);
     }
     
@@ -177,6 +188,7 @@ public class MFSServices {
         byte[] userKey = getFSUserKey(resp.getFileServerName());
         FileData fdata = (FileData)CryptoUtilities.decryptObject(resp.getEncryptedBuffer(), userKey);
         setBlock(fops, fdata);
+        AuthServices.printLog("Block " +fdata.getBlockNo()+ " of file recieved.");
         return(fdata.isMoreData());
     }
     

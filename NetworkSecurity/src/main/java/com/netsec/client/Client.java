@@ -42,7 +42,7 @@ public class Client {
         });
         
         try{
-            System.out.println("Client: Connecting to authentication server");
+            AuthServices.printLog("connecting to authentication server");
             socket = new Socket(AuthServices.getAuthServerIpAddress(), AuthServices.getAuthServerPort());
             DataInputStream dis = new DataInputStream(socket.getInputStream());
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
@@ -54,28 +54,30 @@ public class Client {
             //introduce to the server as user 
             Intro intro = new Intro();
             intro.setUserId(AuthServices.getUserId());
+            AuthServices.printLog("sending msg: "+intro.toString());
             dos.write(ReaderWriter.serialize(intro));
             dos.flush();
 
             //receive the encrypted challenge
             byte[] encryptedChallenge = ReaderWriter.readStream(dis);
             ChallengeMessage challenge = (ChallengeMessage)AuthServices.decryptAuthObject(encryptedChallenge);
-            System.out.println(challenge);
+            AuthServices.printLog("received msg: "+challenge);
             
             //send the client challenge
             byte[] clientChallenge = AuthServices.createClientChallenge(challenge, AuthServices.getFileServerName());
             wrapper.setEncryptedBuffer(clientChallenge);
+            AuthServices.printLog("sending msg: "+wrapper.toString());
             dos.write(ReaderWriter.serialize(wrapper));
             dos.flush();
             
             //receive the tickets
             byte[] encryptedTickets = ReaderWriter.readStream(dis);
             TicketsResponse tickets = (TicketsResponse)AuthServices.decryptAuthObject(encryptedTickets);
+            AuthServices.printLog("recieved msg: "+tickets.toString());
             
             //store the keys in the data file.
             AuthServices.processTickets(tickets);
-            System.out.println(tickets);
-
+            
             //verify the client challenge response
             boolean valid = AuthServices.isClientChallengeSatisfied(tickets);
             System.out.println(valid);
@@ -99,6 +101,8 @@ public class Client {
             CMFS1 cmfs1 = new CMFS1();
             cmfs1.setChallenge(cmfsChallenge);
             cmfs1.setTicket(ticket1);
+            
+            AuthServices.printLog("sending msg: "+cmfs1.toString());
             
             //send the client challenge
             dos.write(ReaderWriter.serialize(cmfs1));
@@ -133,15 +137,17 @@ public class Client {
                 byte[] parts = ReaderWriter.readStream(dis);
                 String response = new String(parts);
                 if(response.contains("File does not exist on the server")){
-                    System.out.println(response);
-                    System.out.println("Closing the connection");
+                    AuthServices.printLog(response);
+                    AuthServices.printLog("Closing the connection");
                     break;
                 }
+                
                 FileRequestResponse fileresp = (FileRequestResponse)ReaderWriter.deserialize(parts);
                 boolean moreData = MFSServices.processFileResponse(fileresp, fops);
                 if (moreData == false) break;
             }
             fops.close();
+            AuthServices.printLog("file transfer complete"); 
         }   
         
         catch(Exception e){

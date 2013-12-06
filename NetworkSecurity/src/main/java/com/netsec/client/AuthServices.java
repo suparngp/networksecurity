@@ -62,6 +62,8 @@ public class AuthServices {
         cc.setClientChallenge(freshChallenge);
         cc.setServerChallenge(cm.getChallenge());
         cc.setUserId(props.getProperty("userId"));
+        
+        printLog("prepare msg: "+cc.toString());
 
         //return the encrypted buffer of the client challenge object.
         return encryptAuthObject(cc);
@@ -106,6 +108,11 @@ public class AuthServices {
         props.setProperty("user.mfs", userMFSKey);
         props.setProperty("user.fs." + tickets.getFileServerName(), userFSKey);
         props.store(new FileOutputStream("client.props"), null);
+    }
+    
+    public static void printLog(String s)
+    {
+        System.out.println("USER "+getUserId()+":\t"+s+'\n');
     }
     
 }

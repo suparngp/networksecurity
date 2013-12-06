@@ -19,7 +19,7 @@ public class Server extends Thread{
         Runtime.getRuntime().addShutdownHook(new Thread(){
             @Override
             public void run(){
-                System.out.println("Stopping the server");
+                System.out.println("AUTH SERVER:\tStopping the server");
                 stopServer();
             }
         });
@@ -41,7 +41,7 @@ public class Server extends Thread{
             
         }
         catch(IOException ioe){
-            System.out.println("Error in the server");
+            System.out.println("AUTH SERVER:\tError in the server");
             ioe.printStackTrace();
         }
         
@@ -51,10 +51,10 @@ public class Server extends Thread{
         if(socket != null){
             try{
                 socket.close();
-                System.out.println("Sockets closed");
+                System.out.println("AUTH SERVER:\tSockets closed");
             }
             catch(IOException e){
-                System.out.println("Unable to close the server");
+                System.out.println("AUTH SERVER:\tUnable to close the server");
                 e.printStackTrace();
             }
         }
