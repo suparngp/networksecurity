@@ -15,7 +15,7 @@ public class Nonce extends GenericMessage {
 
     @Override
     public String toString() {
-        return "Nonce{" + "nonce=" + nonce + "nonce2="+nonce2+'}';
+        return "Nonce{" + "nonce1=" + nonce + "nonce2="+nonce2+'}';
     }
     
     /**
