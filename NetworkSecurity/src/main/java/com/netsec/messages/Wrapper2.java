@@ -15,6 +15,11 @@ public class Wrapper2 implements Serializable{
     private String fileServerName;
     private byte[] encryptedBuffer;
 
+    @Override
+    public String toString() {
+        return "Wrapper2{" + "userId=" + userId + ", fileServerName="+fileServerName+", encryptedBuffer=" + encryptedBuffer + '}';
+    }
+    
     /**
      * @return the userId
      */

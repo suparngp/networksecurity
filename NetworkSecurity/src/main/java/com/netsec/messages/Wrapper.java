@@ -14,6 +14,11 @@ public class Wrapper implements Serializable{
     private String userId;
     private byte[] encryptedBuffer;
 
+    @Override
+    public String toString() {
+        return "Wrapper{" + "userId=" + userId + ", encryptedBuffer=" + encryptedBuffer + '}';
+    }
+    
     /**
      * @return the userId
      */
