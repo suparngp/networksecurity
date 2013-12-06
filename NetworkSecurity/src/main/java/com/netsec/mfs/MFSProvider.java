@@ -34,7 +34,7 @@ public class MFSProvider {
             mfsKey = DatatypeConverter.parseBase64Binary(props.getProperty("mfs.auth.key"));
         }
         catch(IOException e){
-            System.out.println("Error: Unable to load MFS data file");
+            MFSProvider.printLog("Error: Unable to load MFS data file");
             e.printStackTrace();
         }
     }
@@ -86,7 +86,11 @@ public class MFSProvider {
     public static CMFS1 processMFSChallengeResponse(MFSChallengeResponse clientChallengeResp, String clientID, String fsID) throws Exception{
         
  
-        //TODO: verify the challenge
+        //verify the challenge
+        String correctChallenge = props.getProperty("user."+clientID+".fs."+fsID);
+        if(Long.parseLong(clientChallengeResp.getServerChallenge())+1 != Long.parseLong(correctChallenge)){
+            throw new Exception("FS could not fulfil the challenge");
+        }
                 
         //Create the FS challenge
         
@@ -104,6 +108,7 @@ public class MFSProvider {
         fsChallenge.setFileServerName(fsID);
         fsChallenge.setUserId(clientID);
         
+        printLog("prepare FS challenge: "+fsChallenge.toString());
         //encrypt the challenge message using the MFS-FS key
         byte[] MFSFSKey = DatatypeConverter.parseBase64Binary(props.getProperty("fs."+fsID + ".mfs.key"));
         byte[] challengeEncrypted = CryptoUtilities.encryptObject(fsChallenge, MFSFSKey);
@@ -142,8 +147,7 @@ public class MFSProvider {
         byte[] key = getFSKey(response.getUserId());
         
         MFSFSChallengeResponse fsChallengeResp = (MFSFSChallengeResponse)CryptoUtilities.decryptObject(response.getEncryptedBuffer(), key); 
-        System.out.print("MFS recieved MFS-FS challenge Response: ");
-        System.out.println(fsChallengeResp.toString());
+        printLog("received msg: "+fsChallengeResp.toString());
         
         //verify the challenge
         String correctChallenge = props.getProperty("fs.challenge."+response.getUserId());
@@ -162,6 +166,8 @@ public class MFSProvider {
         
         mfstofs2.setChallenge(String.valueOf(fsCh));
         
+        printLog("prepare msg: "+mfstofs2.toString());
+        
         //encrypt the challenge
         byte[] challengeEncrypted = CryptoUtilities.encryptObject(mfstofs2, key);
         
@@ -176,16 +182,18 @@ public class MFSProvider {
         
         //decrypt
         FSClientChallenge cc = (FSClientChallenge)CryptoUtilities.decryptObject(userChallenge.getEncryptedBuffer(), MFSFSkey);
-        System.out.println("FSClientChallenge recieved at MFS="+cc.toString());
+        printLog("received msg:"+cc.toString());
         
-        //Encrypt with FS - User Key
+        //Encrypt with MFS - User Key
         byte[] encryptedChallenge = CryptoUtilities.encryptObject(cc, CMFSkey);
-        
+        printLog("encrypt previous msg with MFS-Client key");
         //wrap
         Wrapper2 reWrapped = new Wrapper2();
         reWrapped.setEncryptedBuffer(encryptedChallenge);
         reWrapped.setFileServerName(userChallenge.getFileServerName());
         reWrapped.setUserId(userChallenge.getUserId());
+        
+        printLog("sending msg: {"+encryptedChallenge+"}");
         
         return reWrapped;  
     }
@@ -200,16 +208,19 @@ public class MFSProvider {
         
         //decrypt
         FSClientChallenge cc = (FSClientChallenge)CryptoUtilities.decryptObject(userChallenge.getEncryptedBuffer(), CMFSkey);
-        System.out.println("FSClientChallengeReply recieved at MFS="+cc.toString());
+        printLog("received msg: "+cc.toString());
         
         //Encrypt with MFS - FS Key
         byte[] encryptedChallenge = CryptoUtilities.encryptObject(cc, MFSFSkey);
+        printLog("encrypt previous msg with MFS-FS key");
         
         //wrap
         Wrapper2 reWrapped = new Wrapper2();
         reWrapped.setEncryptedBuffer(encryptedChallenge);
         reWrapped.setFileServerName(userChallenge.getFileServerName());
         reWrapped.setUserId(userChallenge.getUserId());
+        
+        printLog("sending msg: {"+encryptedChallenge+"}");
         
         return reWrapped;  
     }
