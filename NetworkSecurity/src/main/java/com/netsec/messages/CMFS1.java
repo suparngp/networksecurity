@@ -14,7 +14,10 @@ public class CMFS1 implements Serializable{
     private byte[] ticket;
     private byte[] challenge;
 
-    
+    @Override
+    public String toString() {
+        return "CMFS1{" + "ticket=" + ticket + ", challenge="+challenge+'}';
+    }
 
     /**
      * @return the challenge
