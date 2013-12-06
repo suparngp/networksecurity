@@ -47,22 +47,22 @@ public class AccountsFSRequestHandler extends Thread{
             //get the MFSFS challenge 
             byte[] cmfs1Stream = ReaderWriter.readStream(dis);
             CMFS1 MFSchallenge = (CMFS1)ReaderWriter.deserialize(cmfs1Stream);
+            AccountsFSProvider.printLog("received msg: "+ MFSchallenge);
             //Process Ticket 2 from MFS
             //send challenge response to MFS (msg 9)
             Wrapper MFSchallengeResponse = AccountsFSProvider.processMFSChallenge(MFSchallenge); 
             dos.write(ReaderWriter.serialize(MFSchallengeResponse));
             dos.flush();
-            System.out.println("Process MFS Challenge and send response.");
             
             
             byte[] MFStoFS2stream = ReaderWriter.readStream(dis);
             CMFS1 MFStoFS2 = (CMFS1)ReaderWriter.deserialize(MFStoFS2stream);
+            AccountsFSProvider.printLog("received msg: "+ MFStoFS2stream); 
             //Process Ticket 3 from MFS and process challenge response from MFS
             //Send challenge to Client. (msg 11)
             Wrapper2 UserChallenge = AccountsFSProvider.processMFStoFS2(MFStoFS2);
             dos.write(ReaderWriter.serialize(UserChallenge));
             dos.flush();
-            System.out.println("Sent FS User Challenge from FS");
             
             byte[] ClienttoFSStream = ReaderWriter.readStream(dis);
             Wrapper2 userChallengeReply = (Wrapper2)ReaderWriter.deserialize(ClienttoFSStream);
@@ -71,10 +71,11 @@ public class AccountsFSRequestHandler extends Thread{
             Wrapper2 fsChallengeToUser = AccountsFSProvider.processUserChallengeReply(userChallengeReply);
             dos.write(ReaderWriter.serialize(fsChallengeToUser));
             dos.flush();
-            System.out.println(" Sent Challenge Response to Client from FS");
+            
             
             byte[] fileRequestStream = ReaderWriter.readStream(dis);
             FileRequestResponse fileRequest = (FileRequestResponse)ReaderWriter.deserialize(fileRequestStream);
+            AccountsFSProvider.printLog("received msg: "+ fileRequest.toString());
             
             FileInputStream fips = null;
             /*

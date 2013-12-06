@@ -60,21 +60,20 @@ public class AccountsFSProvider {
        //open ticket 2
         byte[] ticket2Stream = MFSChallenge.getTicket();
         Ticket2 ticket2 = (Ticket2)CryptoUtilities.decryptObject(ticket2Stream, fsKey);
-        System.out.println("FS Recieved Ticket 2:"); 
-        System.out.println(ticket2);
+        printLog("decrypt ticket 2: "+ticket2.toString()); 
         
         //get the MFS and FS key
         String MFSFSKeyString = ticket2.getMFSFSKey(); 
         props.setProperty("mfs.key", MFSFSKeyString);
         props.store(new FileOutputStream("fs.props"), null);
-        System.out.println("Stored FS MFS key");
+        //System.out.println("Stored FS MFS key");
         byte[] MFSFSKey = DatatypeConverter.parseBase64Binary(MFSFSKeyString);
         
         //decrypt the challenge
         byte[] challengeStream = MFSChallenge.getChallenge();
         CFSIntro challenge = (CFSIntro)CryptoUtilities.decryptObject(challengeStream, MFSFSKey);
-        System.out.println("FS Recieved challenge");
-        System.out.println(challenge);
+        printLog("decrypt challenge: "+ challenge.toString());
+        
         
         //create the challenge response
         MFSFSChallengeResponse response = new MFSFSChallengeResponse();
@@ -90,11 +89,15 @@ public class AccountsFSProvider {
         response.setmfsChallenge(String.valueOf(mfsChallenge - 1));
         response.setfsChallenge(fsChallenge);
         
+        printLog("prepare msg: "+response.toString());
+        
         //encrypt with MFS - FS key, and wrap the message
         byte[] encrypted = CryptoUtilities.encryptObject(response, MFSFSKey);
         Wrapper wrapped = new Wrapper();
         wrapped.setUserId(ticket2.getServerName());
         wrapped.setEncryptedBuffer(encrypted);
+        
+        printLog("sending msg: {"+wrapped.getEncryptedBuffer()+"}");
         
         return wrapped; 
     }
@@ -111,9 +114,8 @@ public class AccountsFSProvider {
        //open ticket 3
         byte[] ticket3Stream = mfstofs2.getTicket();
         Ticket3 ticket3 = (Ticket3)CryptoUtilities.decryptObject(ticket3Stream, fsKey);
-        System.out.println("FS Recieved Ticket 3:"); 
-        System.out.println(ticket3);
-        
+        printLog("decrypt ticket 3: " + ticket3.toString()); 
+      
         //TODO: verify timestamp in ticket 3
         
         //verify challenge
@@ -121,7 +123,7 @@ public class AccountsFSProvider {
         //decrypt the challenge
         byte[] challengeStream = mfstofs2.getChallenge();
         CFSIntro challenge = (CFSIntro)CryptoUtilities.decryptObject(challengeStream, MFSFSKey);
-        
+        printLog("decrypt challenge: "+ challenge.toString());
         
         String correctChallengeString = props.getProperty("mfs.challenge");
         Long correctChallenge = Long.parseLong(correctChallengeString);
@@ -135,7 +137,7 @@ public class AccountsFSProvider {
         String UserFSKeyString = ticket3.getUserFSKey();
         props.setProperty("user."+ticket3.getUserId()+".key", UserFSKeyString);
         props.store(new FileOutputStream("fs.props"), null);
-        System.out.println("Stored FS MFS key");
+        //System.out.println("Stored FS MFS key");
         byte[] UserFSKey = DatatypeConverter.parseBase64Binary(UserFSKeyString);
         
         FSClientChallenge fsClientChallenge = new FSClientChallenge();
@@ -147,21 +149,23 @@ public class AccountsFSProvider {
         props.setProperty("user."+ticket3.getUserId()+".challenge", userChallenge);
         props.store(new FileOutputStream("fs.props"), null);
         
-        System.out.println("nonce="+userChallenge);
-        
         Nonce n = new Nonce();
         n.setNonce(userChallenge);
         
+        printLog("prepare challenge: challenge="+n.getNonce());
         byte[] encryptedUserChallenge = CryptoUtilities.encryptObject(n, UserFSKey);
         
         fsClientChallenge.setEncryptedChallenge(encryptedUserChallenge);
        
+        printLog("prepare msg: "+fsClientChallenge.toString()); 
         //encrypt the message and wrap it
         byte[] encrypted = CryptoUtilities.encryptObject(fsClientChallenge, MFSFSKey);
         Wrapper2 wrapped = new Wrapper2();
         wrapped.setEncryptedBuffer(encrypted);
         wrapped.setFileServerName(ticket3.getServerName());
         wrapped.setUserId(ticket3.getUserId());
+        
+        printLog("sending msg: {"+wrapped.getEncryptedBuffer()+"}");
         
         return wrapped;
     }
@@ -179,7 +183,8 @@ public class AccountsFSProvider {
         FSClientChallenge clientReply = (FSClientChallenge)CryptoUtilities.decryptObject(msg.getEncryptedBuffer(), MFSFSKey);
         Nonce nonces = (Nonce)CryptoUtilities.decryptObject(clientReply.getEncryptedChallenge(), FSUserKey);
         
-        System.out.println("FS recieved nonces:"+nonces.toString());
+        printLog("received msg: "+clientReply.toString()); 
+        printLog("decrypt nonces: "+nonces.toString());
         
         // verify the challenge I sent
         String correctChallengeString = props.getProperty("user."+msg.getUserId()+".challenge");
@@ -190,16 +195,16 @@ public class AccountsFSProvider {
             throw new Exception("Client could not fulfil the FS challenge");
         }
         
-        //AMRUTH: start here :) I verfied the challenge in msg#14, you can start building msg #15 here
         
         Wrapper2 chRespWrapped = new Wrapper2();        
         Nonce respNonces = new Nonce();
         respNonces.setNonce(String.valueOf(Long.parseLong(nonces.getNonce2())-1));
         byte[] encryptedFSChallenge = CryptoUtilities.encryptObject(respNonces, FSUserKey);
+        printLog("prepare nonce: "+respNonces.toString());
         chRespWrapped.setEncryptedBuffer(encryptedFSChallenge);
         chRespWrapped.setFileServerName(msg.getFileServerName());
-        System.out.println("Resp to Server" + chRespWrapped.getFileServerName());
         chRespWrapped.setUserId(msg.getUserId());
+        printLog("send msg: "+chRespWrapped.toString());
         
         //byte[] encryptedWrapper = CryptoUtilities.encryptObject(chRespWrapped, MFSFSKey);
         return chRespWrapped;
@@ -249,4 +254,9 @@ public class AccountsFSProvider {
         return(fileResponse);
     }
    
+    public static void printLog(String s)
+    {
+        System.out.println("ACCOUNTS SERVER:\t"+s+'\n');
+    }
+    
 }
