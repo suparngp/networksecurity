@@ -59,7 +59,7 @@ public class RequestHandler extends Thread {
 
             byte[] message = ReaderWriter.readStream(dis);
             Intro intro = (Intro)ReaderWriter.deserialize(message);
-            System.out.println(intro);
+            AuthProvider.printLog("received msg: "+intro.toString());
             
             //create a wrapper instance to be used later on in the code.
             Wrapper wrapper = new Wrapper();
@@ -68,22 +68,23 @@ public class RequestHandler extends Thread {
             //creating a challenge
             byte[] encryptedChallenge = AuthProvider.createChallenge(intro.getUserId());
             //wrapper.setEncryptedBuffer(encryptedChallenge);
+            AuthProvider.printLog("sending msg: {" + encryptedChallenge + "}");
             dos.write(encryptedChallenge);
             dos.flush();
             
             byte[] wrapped = ReaderWriter.readStream(dis);
             wrapper = (Wrapper)ReaderWriter.deserialize(wrapped);
-            System.out.println(wrapper.getUserId());
             byte[] enClientChallenge =wrapper.getEncryptedBuffer();
             
             byte[] tickets = AuthProvider.createTickets(enClientChallenge, wrapper.getUserId());
+            AuthProvider.printLog("sending msg: {" + tickets + "}");
             dos.write(tickets);
             dos.flush();
 
             //close socket response
             byte[] closeSocket  = ReaderWriter.readStream(dis);
             CloseSocket s = (CloseSocket)ReaderWriter.deserialize(closeSocket);
-            System.out.println(s);
+            AuthProvider.printLog("close socket: "+s);
             
             dis.close();
             dos.close();
