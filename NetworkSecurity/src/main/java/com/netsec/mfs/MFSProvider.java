@@ -236,6 +236,6 @@ public class MFSProvider {
     
     public static void printLog(String s)
     {
-        System.out.println("MF SERVER:\t"+s+'\n');
+        System.out.println("MASTER FILE SERVER:\t"+s+'\n');
     }
 }

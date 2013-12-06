@@ -80,7 +80,7 @@ public class Client {
             
             //verify the client challenge response
             boolean valid = AuthServices.isClientChallengeSatisfied(tickets);
-            System.out.println(valid);
+            //System.out.println(valid);
             
             //send socket close request
             dos.write(ReaderWriter.serialize(new CloseSocket("Tickets received successfully. Closing the socket")));

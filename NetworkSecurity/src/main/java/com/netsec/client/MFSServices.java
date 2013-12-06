@@ -176,7 +176,7 @@ public class MFSServices {
         fileRequest.setFileReqResp(Boolean.TRUE);
         FilePath file = new FilePath();
         file.setFilepath(props.getProperty("file.request.location"));
-        AuthServices.printLog("requesting file "+file.toString());
+        AuthServices.printLog("requesting file "+file.getFilepath());
         byte[] encryptFileRequest = CryptoUtilities.encryptObject(file, fsUserKey);
         fileRequest.setEncryptedBuffer(encryptFileRequest);
         AuthServices.printLog("sending msg: "+ fileRequest.toString());

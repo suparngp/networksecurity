@@ -160,6 +160,6 @@ public class AuthProvider {
     
     public static void printLog(String s)
     {
-        System.out.println("AUTH SERVER:\t"+s+'\n');
+        System.out.println("AUTHORIZATION SERVER:\t"+s+'\n');
     }
 }

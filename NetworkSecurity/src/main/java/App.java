@@ -21,5 +21,6 @@ public class App
         System.out.println( "Starting the Accounts File Server");
         new AccountsFileServer().start(); 
         System.out.println( "Accounts File Server initialized");
+        System.out.println("-----------------------------------------------------------");
     }
 }
