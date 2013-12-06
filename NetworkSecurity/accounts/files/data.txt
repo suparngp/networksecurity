@@ -1,0 +1,2 @@
+This is a classified accounts department data file.
+Access to this file is restricted only to accounts department employees and Senior Management.
