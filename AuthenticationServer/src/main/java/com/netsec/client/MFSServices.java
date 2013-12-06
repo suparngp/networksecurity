@@ -167,7 +167,7 @@ public class MFSServices {
         fileRequest.setFileServerName(fsChallengeResp.getFileServerName());
         fileRequest.setFileReqResp(Boolean.TRUE);
         FilePath file = new FilePath();
-        file.setFilepath("accounts/files/data.txt");
+        file.setFilepath(props.getProperty("file.request.location"));
         byte[] encryptFileRequest = CryptoUtilities.encryptObject(file, fsUserKey);
         fileRequest.setEncryptedBuffer(encryptFileRequest);
         return(fileRequest);
@@ -178,5 +178,10 @@ public class MFSServices {
         FileData fdata = (FileData)CryptoUtilities.decryptObject(resp.getEncryptedBuffer(), userKey);
         setBlock(fops, fdata);
         return(fdata.isMoreData());
+    }
+    
+    
+    public static String getReceivedFilesLocation(){
+        return props.getProperty("file.received.location");
     }
 }

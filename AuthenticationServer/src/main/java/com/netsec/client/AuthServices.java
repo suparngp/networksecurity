@@ -35,6 +35,21 @@ public class AuthServices {
 
     }
 
+    public static String getAuthServerIpAddress(){
+        return props.getProperty("connect.auth.ip");
+    }
+    
+    public static int getAuthServerPort(){
+        return Integer.parseInt(props.getProperty("connect.auth.port"));
+    }
+    
+    public static String getUserId(){
+        return props.getProperty("user.id");
+    }
+    
+    public static String getFileServerName(){
+        return props.getProperty("access.fs");
+    }
     public static byte[] createClientChallenge(ChallengeMessage cm, String fileServerName) throws Exception {
         //create a fresh challenge for the server and save it in client's data file
         String freshChallenge = String.valueOf(new Random().nextLong());

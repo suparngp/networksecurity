@@ -53,8 +53,6 @@ public class RequestHandler extends Thread {
         try {
             System.out.println("Handling the requests for " + Thread.currentThread().getName());
 
-            Properties props = new Properties();
-            props.load(new FileInputStream("datastore.props"));
             //System.out.println(props.getProperty("datastore.name"));
             dis = new DataInputStream(socket.getInputStream());
             dos = new DataOutputStream(socket.getOutputStream());

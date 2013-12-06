@@ -28,7 +28,7 @@ public class AuthProvider {
     
     static{
         try{
-            props.load(new FileInputStream("datastore.props"));
+            props.load(new FileInputStream("auth.props"));
             
         }
         catch(IOException e){

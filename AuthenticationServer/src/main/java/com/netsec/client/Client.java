@@ -19,7 +19,6 @@ import com.netsec.messages.Wrapper2;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -43,17 +42,18 @@ public class Client {
         });
         
         try{
-            socket = new Socket("localhost", 1991);
+            System.out.println("Client: Connecting to authentication server");
+            socket = new Socket(AuthServices.getAuthServerIpAddress(), AuthServices.getAuthServerPort());
             DataInputStream dis = new DataInputStream(socket.getInputStream());
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
             
             //wrapper to be used later in the code.
             Wrapper wrapper = new Wrapper();
-            wrapper.setUserId("1234");
+            wrapper.setUserId(AuthServices.getUserId());
             
             //introduce to the server as user 
             Intro intro = new Intro();
-            intro.setUserId("1234");
+            intro.setUserId(AuthServices.getUserId());
             dos.write(ReaderWriter.serialize(intro));
             dos.flush();
 
@@ -63,7 +63,7 @@ public class Client {
             System.out.println(challenge);
             
             //send the client challenge
-            byte[] clientChallenge = AuthServices.createClientChallenge(challenge, "accounts");
+            byte[] clientChallenge = AuthServices.createClientChallenge(challenge, AuthServices.getFileServerName());
             wrapper.setEncryptedBuffer(clientChallenge);
             dos.write(ReaderWriter.serialize(wrapper));
             dos.flush();
@@ -128,7 +128,7 @@ public class Client {
             dos.flush();
             
             //Get file
-            FileOutputStream fops = new FileOutputStream("accounts/files/report.txt");
+            FileOutputStream fops = new FileOutputStream(MFSServices.getReceivedFilesLocation());
             while(true) {
                 byte[] parts = ReaderWriter.readStream(dis);
                 String response = new String(parts);

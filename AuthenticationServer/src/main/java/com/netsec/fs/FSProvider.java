@@ -34,7 +34,7 @@ public class FSProvider {
     private static byte[] fsKey;
     static{
         try{
-            props.load(new FileInputStream("fs.props"));
+            props.load(new FileInputStream("accounts.props"));
             fsKey = DatatypeConverter.parseBase64Binary(props.getProperty("fs.auth.key"));
         }
         catch(IOException e){

@@ -5,7 +5,6 @@
 package com.netsec.mfs;
 
 import com.netsec.commons.CryptoUtilities;
-import com.netsec.messages.CFSIntro;
 import com.netsec.messages.FSClientChallenge;
 import com.netsec.messages.CMFS1;
 import com.netsec.messages.MFSChallengeResponse;
@@ -219,4 +218,12 @@ public class MFSProvider {
         return reWrapped;  
     }
     
+    
+    public static String getFSIpAddress(String fileServerName){
+        return props.getProperty("connect.fs." + fileServerName + ".ip");
+    }
+    
+    public static int getFSPort(String fileServerName){
+        return Integer.parseInt(props.getProperty("connect.fs." + fileServerName + ".port"));
+    }
 }

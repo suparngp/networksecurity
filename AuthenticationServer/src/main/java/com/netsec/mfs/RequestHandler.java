@@ -67,7 +67,7 @@ public class RequestHandler extends Thread {
             CMFS1 mfsfschallenge = MFSProvider.processMFSChallengeResponse(clientChallengeResp, wrapper.getUserId(), wrapper.getFileServerName());
 
             //open socket to File Server
-            Socket fsSocket = new Socket("localhost", 1993);
+            Socket fsSocket = new Socket(MFSProvider.getFSIpAddress(wrapper.getFileServerName()), MFSProvider.getFSPort(wrapper.getFileServerName()));
             DataInputStream FSdis = new DataInputStream(fsSocket.getInputStream());
             DataOutputStream FSdos = new DataOutputStream(fsSocket.getOutputStream());
 
