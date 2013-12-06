@@ -15,6 +15,11 @@ public class MFSChallengeResponse extends GenericMessage{
     private byte[] ticket2;
     private byte[] ticket3;
 
+    @Override
+    public String toString() {
+        return "MFSChallengeResponse{" + "userId=" + userId + ", serverChallenge=" + serverChallenge +", fileServerName=" + fileServerName + ", ticket2="+ticket2+", ticket3="+ticket3+'}';
+    }
+    
     /**
      * @return the serverChallenge
      */
