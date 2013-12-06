@@ -51,6 +51,7 @@ public class AuthProvider {
         challengeMessage.setChallenge(challenge);
         challengeMessage.setUserId(userId);
         
+        printLog("preparing msg: " + challengeMessage.toString());
         //return the encrypted buffer.
         return CryptoUtilities.encryptObject(challengeMessage, key);
     }
@@ -58,7 +59,7 @@ public class AuthProvider {
     public static byte[] createTickets(byte[] clientChallenge, String userId) throws Exception{
         byte[] key = getUserAuthKey(userId);
         ClientChallenge cc = (ClientChallenge)CryptoUtilities.decryptObject(clientChallenge, key);
-        System.out.println(cc);
+        printLog("recieved msg: " + cc.toString());
         String serverChallenge = props.getProperty("user." + userId + ".challenge");
         if(!serverChallenge.equals(cc.getServerChallenge())){
             throw new Exception("Client could not fulfil the challenge");
@@ -100,6 +101,8 @@ public class AuthProvider {
         ticket1.setUserMFSKey(umfsKey);
         ticket1.setMFSFSKey(fsmfsKey);
         
+        printLog("create ticket 1: " + ticket1.toString());
+        
         //encrypt the ticket with MFS shared key
         byte[] mfsSharedKey = getKey("auth.mfs");
         res.setTicket1(CryptoUtilities.encryptObject(ticket1, mfsSharedKey));
@@ -110,6 +113,8 @@ public class AuthProvider {
         ticket2.setMFSFSKey(fsmfsKey);
         ticket2.setServerName(fileServerName);
         ticket2.setUserId(userId);
+        
+        printLog("create ticket 2: " + ticket2.toString());
         
         //encrypt the ticket 2 with FS shared key (like accounts server)
         byte[] fsSharedKey = getKey("auth.fs." + fileServerName.toLowerCase());
@@ -122,10 +127,12 @@ public class AuthProvider {
         ticket3.setServerName(fileServerName);
         ticket3.setUserId(userId);
         
+        printLog("create ticket 3: " + ticket3.toString());
+        
         //encrypt ticket 3 with FS shared key like acounts file server
         res.setTicket3(CryptoUtilities.encryptObject(ticket3, fsSharedKey));
         
-        //System.out.println(res);
+        printLog("prepare msg: " + res.toString());
         
         //return the encrypted tickets response object. Key = user's shared auth key
         return CryptoUtilities.encryptObject(res, key);
@@ -149,5 +156,10 @@ public class AuthProvider {
         }
         byte[] key = DatatypeConverter.parseBase64Binary(sharedKey);
         return key;
+    }
+    
+    public static void printLog(String s)
+    {
+        System.out.println("AUTH SERVER:\t"+s+'\n');
     }
 }
