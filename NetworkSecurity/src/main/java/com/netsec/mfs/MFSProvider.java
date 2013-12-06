@@ -50,8 +50,7 @@ public class MFSProvider {
         // decrypt the ticket.
         byte[] ticket1Stream = cmfs1.getTicket();
         Ticket1 ticket1 = (Ticket1)CryptoUtilities.decryptObject(ticket1Stream, mfsKey);
-        System.out.println(ticket1);
-        
+        printLog("decrypted ticket 1: "+ ticket1.toString());
         
         //get the user and MFS 
         String userMFSKeyString = ticket1.getUserMFSKey();
@@ -63,11 +62,10 @@ public class MFSProvider {
         String MFSFSKeyString = ticket1.getMFSFSKey(); 
         props.setProperty("fs."+ticket1.getServerName() + ".mfs.key", MFSFSKeyString);
         props.store(new FileOutputStream("mfs.props"), null);
-        System.out.println("Stored FS MFS key");
         
         //decrypt the client challenge
         CFSIntro intro = (CFSIntro)CryptoUtilities.decryptObject(cmfs1.getChallenge(), userMFSKey);
-        System.out.println(intro);
+        printLog("decrypted challenge: " + intro.toString());
         
         long clientChallenge = Long.parseLong(intro.getChallenge());
         String serverChallenge = String.valueOf(new Random().nextLong());
@@ -80,6 +78,7 @@ public class MFSProvider {
         cmfsRes.setMfsChallenge(serverChallenge);
         cmfsRes.setUserId(intro.getUserId());
         
+        printLog("prepare msg: "+ cmfsRes.toString());
         return CryptoUtilities.encryptObject(cmfsRes, userMFSKey);
     }
     
@@ -104,9 +103,6 @@ public class MFSProvider {
         fsChallenge.setChallenge(freshChallenge);
         fsChallenge.setFileServerName(fsID);
         fsChallenge.setUserId(clientID);
-        
-        System.out.print("MFS-FS challenge: ");
-        System.out.println(fsChallenge.toString());
         
         //encrypt the challenge message using the MFS-FS key
         byte[] MFSFSKey = DatatypeConverter.parseBase64Binary(props.getProperty("fs."+fsID + ".mfs.key"));
@@ -225,5 +221,10 @@ public class MFSProvider {
     
     public static int getFSPort(String fileServerName){
         return Integer.parseInt(props.getProperty("connect.fs." + fileServerName + ".port"));
+    }
+    
+    public static void printLog(String s)
+    {
+        System.out.println("MF SERVER:\t"+s+'\n');
     }
 }
