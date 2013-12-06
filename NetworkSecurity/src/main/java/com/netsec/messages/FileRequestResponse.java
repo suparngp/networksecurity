@@ -18,6 +18,11 @@ public class FileRequestResponse implements Serializable {
     Boolean fileReqResp; //true for request and false for response
     private byte[] encryptedBuffer;
 
+    @Override
+    public String toString() {
+        return "FileRequestResponse{userId=" + userId + ", fileServerName="+fileServerName+", fileReqResp="+fileReqResp+", encryptedBuffer="+encryptedBuffer+'}';
+    }
+    
     public String getUserId() {
         return userId;
     }
