@@ -91,12 +91,12 @@ public class Client {
             socket.close();
             
             //start a socket with 
-            mfsSocket = new Socket("localhost", 1992);
+            mfsSocket = new Socket(MFSServices.getMasterFileServerIp(), MFSServices.getMasterFileServerPort());
             dis = new DataInputStream(mfsSocket.getInputStream());
             dos = new DataOutputStream(mfsSocket.getOutputStream());
             
             //create the client challenge
-            byte[] cmfsChallenge = MFSServices.createMFSChallenge("1234", "accounts");
+            byte[] cmfsChallenge = MFSServices.createMFSChallenge(AuthServices.getUserId(), AuthServices.getFileServerName());
             byte[] ticket1 = tickets.getTicket1();
             CMFS1 cmfs1 = new CMFS1();
             cmfs1.setChallenge(cmfsChallenge);

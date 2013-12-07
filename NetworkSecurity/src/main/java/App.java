@@ -3,6 +3,8 @@
 import com.netsec.auth.Server;
 import com.netsec.mfs.MFSServer;
 import com.netsec.fs.accounts.AccountsFileServer; 
+import com.netsec.fs.finance.FinanceFileServer;
+import com.netsec.fs.payroll.PayrollFileServer;
 
 /**
  * Hello world!
@@ -21,6 +23,12 @@ public class App
         System.out.println( "Starting the Accounts File Server");
         new AccountsFileServer().start(); 
         System.out.println( "Accounts File Server initialized");
+        System.out.println( "Starting the Finance File Server");
+        new FinanceFileServer().start(); 
+        System.out.println( "Finance File Server initialized");
+        System.out.println( "Starting the Payroll File Server");
+        new PayrollFileServer().start(); 
+        System.out.println( "Payroll File Server initialized");
         System.out.println("-----------------------------------------------------------");
     }
 }

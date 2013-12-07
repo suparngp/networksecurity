@@ -196,4 +196,12 @@ public class MFSServices {
     public static String getReceivedFilesLocation(){
         return props.getProperty("file.received.location");
     }
+    
+    public static String getMasterFileServerIp(){
+        return props.getProperty("connect.mfs.ip");
+    }
+    
+    public static int getMasterFileServerPort(){
+        return Integer.parseInt(props.getProperty("connect.mfs.port"));
+    }
 }

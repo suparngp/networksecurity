@@ -1,7 +1,11 @@
 #Wed Dec 04 16:56:40 CST 2013
 can.user.1234.access.fs.accounts=true;
+can.user.1234.access.fs.finance=true;
+can.user.1234.access.fs.payroll=true;
 user.1234.key=NWbJFwpZTvceA3CxVVKXpQ\=\=
 auth.fs.accounts=SSFEoNqoepqn0ugDWf8rvg\=\=
+auth.fs.finance=9ve3Zla++1cYb39mXFx9DQ==
+auth.fs.payroll=K01sBeAMUgYU9hFXrnJrNA==
 user.1234.mfs=sFY5w4RGEUcoeuLn8QrY0Q\=\=
 user.1234.fs.accounts=QRxXnsb27Gbf7Z2uR6Bkrg\=\=
 user.1234.mfs.fs=0uxwAYlH4r3DIR4EhhYMEw\=\=
