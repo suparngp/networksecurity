@@ -1,12 +1,12 @@
-#Fri Dec 06 18:24:48 CST 2013
+#Sun Dec 08 18:55:16 CST 2013
 user.1234.fs.finance=-3943069266041526915
 datastore.name=mfs
 fs.finance.mfs.key=UVssc496yjS8+93rsbbOJg\=\=
 fs.accounts.mfs.key=VfjaWEuuuVD1YjNU4+enQg\=\=
 mfs.auth.key=GBB4sU8LNXwxFINyj9kejw\=\=
-fs.payroll.mfs.key=qLBGtaFkPSDMx8vMmnFp2w\=\=
-user.1234.fs.payroll=1686189680317945699
-user.1234.mfs.key=/kfDgQY+YIrkdRoWxVk1iQ\=\=
+fs.payroll.mfs.key=YgCfJKMVWl1ta77+N6Xudw\=\=
+user.1234.fs.payroll=-5866706223304748262
+user.1234.mfs.key=F5g7SH1qixN3mOhx48ytGg\=\=
 fs.challenge.accounts=-6039849777121697854
 connect.fs.payroll.ip=localhost
 connect.fs.finance.port=1994
@@ -15,6 +15,6 @@ fs.challenge.finance=-3249231835456895220
 connect.fs.accounts.ip=localhost
 connect.fs.accounts.port=1993
 fs.accounts.user.1234.ticket3=[B@de684bd
+fs.challenge.payroll=-1896990771973131181
 connect.fs.finance.ip=localhost
-fs.challenge.payroll=4893423678803576350
 connect.fs.payroll.port=1995
