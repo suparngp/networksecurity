@@ -144,7 +144,7 @@ public class Client {
                 
                 FileRequestResponse fileresp = (FileRequestResponse)ReaderWriter.deserialize(parts);
                 boolean moreData = MFSServices.processFileResponse(fileresp, fops);
-                if (moreData == false) break;
+                if (moreData == false) break;      
             }
             fops.close();
             AuthServices.printLog("file transfer complete"); 

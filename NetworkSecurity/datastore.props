@@ -1,15 +1,15 @@
-#Sun Dec 08 18:55:16 CST 2013
-user.1234.fs.payroll=68hWlAvE+JuaDdAwmc1LQg\=\=
+#Sun Dec 08 18:59:39 CST 2013
+user.1234.fs.payroll=436ZjIfsxD+z1+XuJYvzBQ\=\=
 can.user.1234.access.fs.accounts=true;
 user.1234.key=NWbJFwpZTvceA3CxVVKXpQ\=\=
 auth.fs.accounts=SSFEoNqoepqn0ugDWf8rvg\=\=
 can.user.1234.access.fs.payroll=true;
 user.1234.fs.accounts=QRxXnsb27Gbf7Z2uR6Bkrg\=\=
-user.1234.mfs=F5g7SH1qixN3mOhx48ytGg\=\=
-user.1234.mfs.fs=YgCfJKMVWl1ta77+N6Xudw\=\=
+user.1234.mfs=p52dYUKpzhPuj+ekPyxmNg\=\=
+user.1234.mfs.fs=x+vTno18BeL97lGTvCoEnw\=\=
 auth.fs.finance=9ve3Zla++1cYb39mXFx9DQ\=\=
 datastore.name=auth
 auth.mfs=GBB4sU8LNXwxFINyj9kejw\=\=
 can.user.1234.access.fs.finance=true;
 auth.fs.payroll=K01sBeAMUgYU9hFXrnJrNA\=\=
-user.1234.challenge=1599200321854771373
+user.1234.challenge=-4267929499845611113

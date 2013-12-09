@@ -188,7 +188,7 @@ public class MFSServices {
         byte[] userKey = getFSUserKey(resp.getFileServerName());
         FileData fdata = (FileData)CryptoUtilities.decryptObject(resp.getEncryptedBuffer(), userKey);
         setBlock(fops, fdata);
-        AuthServices.printLog("Block " +fdata.getBlockNo()+ " of file recieved.");
+        AuthServices.printLog("Block " + (fdata.getBlockNo() + 1) + " of file recieved.");
         return(fdata.isMoreData());
     }
     

@@ -1,20 +1,20 @@
-#Sun Dec 08 18:55:17 CST 2013
+#Sun Dec 08 18:59:39 CST 2013
 auth.challenge.accounts=-2943736408899415185
-fs.payroll.challenge=-4854999043896172478
+fs.payroll.challenge=2753339144988261244
 auth.challenge.finance=3829912301936873569
 mfs.challenge.finance=-3942323801232303560
 userId=1234
 auth.key=NWbJFwpZTvceA3CxVVKXpQ\=\=
 mfs.challenge.accounts=1011669041043210375
 connect.auth.port=1991
-auth.challenge.payroll=-3727775958732497593
-mfs.challenge.payroll=5339173880564206044
+auth.challenge.payroll=737082335244102627
+mfs.challenge.payroll=-2705166557327913777
 user.fs.finance=rODTW7ZW9kHuT90buyNb3A\=\=
 file.received.location=received/files/data.txt
-user.fs.payroll=68hWlAvE+JuaDdAwmc1LQg\=\=
+user.fs.payroll=436ZjIfsxD+z1+XuJYvzBQ\=\=
 file.request.location=files/accounts/accounts.txt
 connect.auth.ip=localhost
-user.mfs=F5g7SH1qixN3mOhx48ytGg\=\=
+user.mfs=p52dYUKpzhPuj+ekPyxmNg\=\=
 fs.finance.challenge=7513053352161482761
 fs.accounts.challenge=8654197345912134881
 connect.mfs.port=1992
